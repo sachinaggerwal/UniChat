@@ -1,0 +1,36 @@
+{
+  "session_id": "20251130_090339",
+  "total_queries": 23,
+  "timestamp": "2025-11-30T09:24:33.555371",
+  "timing": {
+    "avg_total_time": 5.100437464921371,
+    "avg_retrieval_time": 2.1134208285290264,
+    "avg_generation_time": 2.8858771946119224,
+    "max_total_time": 8.958533525466919,
+    "min_total_time": 4.410948276519775
+  },
+  "retrieval": {
+    "avg_vector_results": 2.869565217391304,
+    "avg_kg_results": 1.0,
+    "avg_total_results": 3.869565217391304,
+    "fusion_strategies": {
+      "adaptive": 23
+    }
+  },
+  "quality": {
+    "avg_answer_length": 502.1304347826087,
+    "avg_context_length": 1867.0434782608695,
+    "avg_relevance_score": 0.4445479641131815
+  },
+  "resources": {
+    "avg_memory_used_mb": -0.006793478260869565,
+    "max_memory_used_mb": 0.3046875,
+    "avg_cpu_percent": 25.186956521739134
+  },
+  "model_config": {
+    "embedding_provider": "ollama",
+    "embedding_model": "nomic-embed-text",
+    "llm_provider": "ollama",
+    "llm_model": "llama3.2"
+  }
+}

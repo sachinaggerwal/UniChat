@@ -1,0 +1,53 @@
+# Windows-compatible requirements for RAG System
+# Install with: pip install -r requirements_windows.txt
+
+# Core dependencies
+python-dotenv>=1.0.0
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-community>=0.3.0
+
+# Vector store
+faiss-cpu>=1.8.0  # Use faiss-gpu if you have CUDA
+numpy>=1.24.3
+
+# Embeddings providers
+langchain-openai>=0.2.0
+langchain-huggingface>=0.1.0
+sentence-transformers>=2.7.0
+transformers>=4.41.0
+
+# LLM providers
+openai>=1.40.0
+# langchain-anthropic>=0.2.0  # Uncomment if using Anthropic
+# cohere>=5.5.0  # Uncomment if using Cohere
+
+# Knowledge Graph
+networkx>=3.1
+
+# Document processing
+PyPDF2>=3.0.1
+pdfminer.six>=20221105
+python-docx>=1.1.0
+olefile>=0.47
+
+# UI
+streamlit>=1.37.0
+
+# Utilities
+requests>=2.32.0
+tqdm>=4.66.0
+
+# Optional: For GPU acceleration (install after above if you have NVIDIA GPU)
+# torch>=2.1.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+# OR for CPU only:
+# torch>=2.1.0
+
+# Optional: For Ollama (local LLMs)
+# No package needed - just install Ollama from https://ollama.ai
+
+# Development/Testing
+pytest>=8.2.0
+pytest-cov>=5.0.0
+
+psutil

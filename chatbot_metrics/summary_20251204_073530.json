@@ -1,0 +1,36 @@
+{
+  "session_id": "20251204_073530",
+  "total_queries": 4,
+  "timestamp": "2025-12-04T07:44:04.078711",
+  "timing": {
+    "avg_total_time": 4.252418518066406,
+    "avg_retrieval_time": 0.1891787052154541,
+    "avg_generation_time": 3.9620824456214905,
+    "max_total_time": 7.485975742340088,
+    "min_total_time": 2.5008561611175537
+  },
+  "retrieval": {
+    "avg_vector_results": 0.5,
+    "avg_kg_results": 1.0,
+    "avg_total_results": 1.5,
+    "fusion_strategies": {
+      "adaptive": 4
+    }
+  },
+  "quality": {
+    "avg_answer_length": 229.5,
+    "avg_context_length": 529.75,
+    "avg_relevance_score": 0.5357142857142857
+  },
+  "resources": {
+    "avg_memory_used_mb": 18.244140625,
+    "max_memory_used_mb": 71.0859375,
+    "avg_cpu_percent": 26.625
+  },
+  "model_config": {
+    "embedding_provider": "sentence-transformers",
+    "embedding_model": "BAAI/bge-base-en-v1.5",
+    "llm_provider": "ollama",
+    "llm_model": "mistral"
+  }
+}

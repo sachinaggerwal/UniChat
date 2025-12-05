@@ -1,0 +1,36 @@
+{
+  "session_id": "20251129_092347",
+  "total_queries": 48,
+  "timestamp": "2025-11-29T09:59:21.219188",
+  "timing": {
+    "avg_total_time": 4.9253119478623075,
+    "avg_retrieval_time": 2.084883287549019,
+    "avg_generation_time": 2.7393412739038467,
+    "max_total_time": 6.892675876617432,
+    "min_total_time": 4.361514568328857
+  },
+  "retrieval": {
+    "avg_vector_results": 0.9583333333333334,
+    "avg_kg_results": 1.0833333333333333,
+    "avg_total_results": 2.0416666666666665,
+    "fusion_strategies": {
+      "adaptive": 48
+    }
+  },
+  "quality": {
+    "avg_answer_length": 454.8333333333333,
+    "avg_context_length": 1008.6666666666666,
+    "avg_relevance_score": 0.394047619047619
+  },
+  "resources": {
+    "avg_memory_used_mb": -0.014892578125,
+    "max_memory_used_mb": 0.33203125,
+    "avg_cpu_percent": 20.095833333333335
+  },
+  "model_config": {
+    "embedding_provider": "ollama",
+    "embedding_model": "nomic-embed-text",
+    "llm_provider": "ollama",
+    "llm_model": "llama3.2"
+  }
+}

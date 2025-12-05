@@ -1,0 +1,286 @@
+@echo off
+REM setup.bat - Quick setup script for Windows
+REM Double-click to run or execute from Command Prompt
+
+echo ================================================================
+echo RAG System - Windows Setup
+echo ================================================================
+echo.
+
+REM Check if Python is installed
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] Python is not installed or not in PATH
+    echo Please install Python 3.8+ from https://www.python.org/downloads/
+    echo Make sure to check "Add Python to PATH" during installation
+    pause
+    exit /b 1
+)
+
+echo [INFO] Python found
+python --version
+echo.
+
+REM Run setup script
+echo [INFO] Running setup wizard...
+echo.
+python setup_windows.py
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Setup failed. Please check the errors above.
+    pause
+    exit /b 1
+)
+
+echo.
+echo ================================================================
+echo Setup Complete!
+echo ================================================================
+echo.
+echo Next steps:
+echo 1. Edit .env file with your API keys (if using OpenAI)
+echo 2. Run: extract_documents.bat (to process your PDFs/DOCX)
+echo 3. Run: build_database.bat (to create vector database)
+echo 4. Run: start_chatbot.bat (to launch the chatbot)
+echo 5. Run: run_tests.bat (to test different models)
+echo.
+pause
+
+REM =================================================================
+REM Save this as: setup.bat
+REM =================================================================
+
+REM =================================================================
+REM extract_documents.bat - Extract text from course documents
+REM =================================================================
+@echo off
+echo ================================================================
+echo Extracting Course Documents
+echo ================================================================
+echo.
+
+python Course_Outline_Extractor.py
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Document extraction failed
+    pause
+    exit /b 1
+)
+
+echo.
+echo [SUCCESS] Documents extracted to course_outlines.jsonl
+echo.
+pause
+
+REM =================================================================
+REM Save this as: extract_documents.bat
+REM =================================================================
+
+REM =================================================================
+REM build_database.bat - Build vector database and knowledge graph
+REM =================================================================
+@echo off
+echo ================================================================
+echo Building RAG Database
+echo ================================================================
+echo.
+echo This will create:
+echo - Vector database (FAISS)
+echo - Knowledge graph (NetworkX)
+echo.
+echo This may take 5-15 minutes depending on:
+echo - Number of documents
+echo - Model size
+echo - GPU availability
+echo.
+
+python enhanced_ingestion.py
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Database build failed
+    pause
+    exit /b 1
+)
+
+echo.
+echo [SUCCESS] Database built successfully
+echo.
+pause
+
+REM =================================================================
+REM Save this as: build_database.bat
+REM =================================================================
+
+REM =================================================================
+REM start_chatbot.bat - Launch the Streamlit chatbot
+REM =================================================================
+@echo off
+echo ================================================================
+echo Starting RAG Chatbot
+echo ================================================================
+echo.
+echo Chatbot will open in your default browser at:
+echo http://localhost:8501
+echo.
+echo Press Ctrl+C to stop the server
+echo.
+
+streamlit run enhanced_chatbot_metrics.py
+
+REM =================================================================
+REM Save this as: start_chatbot.bat
+REM =================================================================
+
+REM =================================================================
+REM run_tests.bat - Run model testing framework
+REM =================================================================
+@echo off
+echo ================================================================
+echo Model Testing Framework
+echo ================================================================
+echo.
+echo This will test different embedding and LLM combinations
+echo Results will be saved to: test_results/
+echo.
+
+python model_tester.py
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Testing failed
+    pause
+    exit /b 1
+)
+
+echo.
+echo [SUCCESS] Testing complete
+echo Check results in: test_results/
+echo.
+pause
+
+REM =================================================================
+REM Save this as: run_tests.bat
+REM =================================================================
+
+REM =================================================================
+REM install_ollama.bat - Install Ollama and models (requires admin)
+REM =================================================================
+@echo off
+echo ================================================================
+echo Ollama Installation Guide
+echo ================================================================
+echo.
+echo Ollama enables local LLM execution (free, no API key needed)
+echo.
+echo Manual installation required:
+echo 1. Download from: https://ollama.ai/download
+echo 2. Run the installer
+echo 3. Open a new terminal and run:
+echo    ollama pull llama3.2
+echo    ollama pull nomic-embed-text
+echo.
+echo After installation, run: test_ollama.bat
+echo.
+pause
+
+REM =================================================================
+REM Save this as: install_ollama.bat
+REM =================================================================
+
+REM =================================================================
+REM test_ollama.bat - Test Ollama connection
+REM =================================================================
+@echo off
+echo ================================================================
+echo Testing Ollama Connection
+echo ================================================================
+echo.
+
+curl -s http://localhost:11434/api/tags >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] Ollama server is not running
+    echo.
+    echo To start Ollama:
+    echo 1. Open a terminal
+    echo 2. Run: ollama serve
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [SUCCESS] Ollama server is running
+echo.
+
+echo Available models:
+curl -s http://localhost:11434/api/tags
+
+echo.
+pause
+
+REM =================================================================
+REM Save this as: test_ollama.bat
+REM =================================================================
+
+REM =================================================================
+REM clean.bat - Clean up generated files
+REM =================================================================
+@echo off
+echo ================================================================
+echo Cleanup Utility
+echo ================================================================
+echo.
+echo WARNING: This will delete:
+echo - Vector database (faiss_course_db)
+echo - Knowledge graph (knowledge_graph_db)
+echo - Test results (test_results)
+echo - Metrics (chatbot_metrics)
+echo.
+echo Your .env file and source code will NOT be deleted
+echo.
+set /p confirm="Are you sure? (y/n): "
+
+if /i not "%confirm%"=="y" (
+    echo Cancelled
+    pause
+    exit /b 0
+)
+
+echo.
+echo Cleaning up...
+
+if exist faiss_course_db (
+    rmdir /s /q faiss_course_db
+    echo [DELETED] faiss_course_db
+)
+
+if exist knowledge_graph_db (
+    rmdir /s /q knowledge_graph_db
+    echo [DELETED] knowledge_graph_db
+)
+
+if exist test_results (
+    rmdir /s /q test_results
+    echo [DELETED] test_results
+)
+
+if exist chatbot_metrics (
+    rmdir /s /q chatbot_metrics
+    echo [DELETED] chatbot_metrics
+)
+
+if exist __pycache__ (
+    rmdir /s /q __pycache__
+    echo [DELETED] __pycache__
+)
+
+echo.
+echo [SUCCESS] Cleanup complete
+echo.
+pause
+
+REM =================================================================
+REM Save this as: clean.bat
+REM =================================================================

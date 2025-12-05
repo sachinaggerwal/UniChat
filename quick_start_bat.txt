@@ -1,0 +1,303 @@
+@echo off
+REM QUICK_START.bat - Complete automated workflow for RAG system
+REM Double-click this file to run the entire setup process
+
+echo ======================================================================
+echo           Course RAG System - Quick Start Wizard
+echo ======================================================================
+echo.
+echo This wizard will guide you through the complete setup process:
+echo   1. System setup and package installation
+echo   2. Document extraction from PDFs/DOCX
+echo   3. Vector database and knowledge graph building
+echo   4. Launch the chatbot
+echo.
+echo Press Ctrl+C at any time to cancel
+echo.
+pause
+
+REM ======================================================================
+REM STEP 1: SYSTEM SETUP
+REM ======================================================================
+
+echo.
+echo ======================================================================
+echo STEP 1/4: System Setup
+echo ======================================================================
+echo.
+
+python setup_windows.py
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Setup failed. Please check the errors above.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [SUCCESS] Setup complete!
+echo.
+
+REM ======================================================================
+REM STEP 2: CONFIGURE
+REM ======================================================================
+
+echo ======================================================================
+echo STEP 2/4: Configuration
+echo ======================================================================
+echo.
+echo Please choose your model configuration:
+echo.
+echo   1. OpenAI (Recommended - Fast and Accurate) [Requires API Key]
+echo   2. Local Models (Free - No API Key) [Requires Ollama]
+echo   3. Mixed (Local Embeddings + OpenAI LLM) [Requires API Key]
+echo   4. Skip - I've already configured .env file
+echo.
+set /p config_choice="Enter your choice (1-4): "
+
+if "%config_choice%"=="1" (
+    echo.
+    set /p api_key="Enter your OpenAI API key: "
+    echo OPENAI_API_KEY=!api_key!> .env.temp
+    echo EMBEDDING_PROVIDER=openai>> .env.temp
+    echo EMBEDDING_MODEL=text-embedding-3-small>> .env.temp
+    echo LLM_PROVIDER=openai>> .env.temp
+    echo LLM_MODEL=gpt-4o-mini>> .env.temp
+    echo LLM_TEMPERATURE=0>> .env.temp
+    echo LLM_MAX_TOKENS=1500>> .env.temp
+    echo RETRIEVAL_TOP_K=6>> .env.temp
+    echo CHUNK_SIZE=500>> .env.temp
+    echo CHUNK_OVERLAP=150>> .env.temp
+    echo USE_NETWORKX_KG=true>> .env.temp
+    echo KG_MAX_HOPS=1>> .env.temp
+    echo KG_TOP_ENTITIES=3>> .env.temp
+    echo VECTOR_WEIGHT=0.7>> .env.temp
+    echo KG_WEIGHT=0.3>> .env.temp
+    echo FUSION_STRATEGY=adaptive>> .env.temp
+    echo PERSIST_DIR=faiss_course_db>> .env.temp
+    echo KG_PERSIST_DIR=knowledge_graph_db>> .env.temp
+    echo COURSE_OUTLINES_FILE=course_outlines.jsonl>> .env.temp
+    echo ENABLE_CACHING=true>> .env.temp
+    echo EMBEDDING_BATCH_SIZE=32>> .env.temp
+    echo NUM_WORKERS=4>> .env.temp
+    move /y .env.temp .env
+    echo [SUCCESS] OpenAI configuration saved to .env
+)
+
+if "%config_choice%"=="2" (
+    echo.
+    echo Checking Ollama installation...
+    curl -s http://localhost:11434/api/tags >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo [WARNING] Ollama server is not running.
+        echo Please install Ollama from: https://ollama.ai
+        echo Then run: ollama serve
+        echo.
+        pause
+        exit /b 1
+    )
+    echo [SUCCESS] Ollama is running
+    echo.
+    echo EMBEDDING_PROVIDER=ollama> .env
+    echo EMBEDDING_MODEL=nomic-embed-text>> .env
+    echo LLM_PROVIDER=ollama>> .env
+    echo LLM_MODEL=llama3.2>> .env
+    echo OLLAMA_BASE_URL=http://localhost:11434>> .env
+    echo LLM_TEMPERATURE=0>> .env
+    echo LLM_MAX_TOKENS=1500>> .env
+    echo RETRIEVAL_TOP_K=6>> .env
+    echo CHUNK_SIZE=500>> .env
+    echo CHUNK_OVERLAP=150>> .env
+    echo USE_NETWORKX_KG=true>> .env
+    echo KG_MAX_HOPS=1>> .env
+    echo KG_TOP_ENTITIES=3>> .env
+    echo VECTOR_WEIGHT=0.7>> .env
+    echo KG_WEIGHT=0.3>> .env
+    echo FUSION_STRATEGY=adaptive>> .env
+    echo PERSIST_DIR=faiss_course_db>> .env
+    echo KG_PERSIST_DIR=knowledge_graph_db>> .env
+    echo COURSE_OUTLINES_FILE=course_outlines.jsonl>> .env
+    echo ENABLE_CACHING=true>> .env
+    echo EMBEDDING_BATCH_SIZE=32>> .env
+    echo NUM_WORKERS=4>> .env
+    echo [SUCCESS] Local models configuration saved to .env
+)
+
+if "%config_choice%"=="3" (
+    echo.
+    set /p api_key="Enter your OpenAI API key: "
+    echo OPENAI_API_KEY=!api_key!> .env
+    echo EMBEDDING_PROVIDER=sentence-transformers>> .env
+    echo EMBEDDING_MODEL=BAAI/bge-small-en-v1.5>> .env
+    echo LLM_PROVIDER=openai>> .env
+    echo LLM_MODEL=gpt-4o-mini>> .env
+    echo LLM_TEMPERATURE=0>> .env
+    echo LLM_MAX_TOKENS=1500>> .env
+    echo RETRIEVAL_TOP_K=6>> .env
+    echo CHUNK_SIZE=500>> .env
+    echo CHUNK_OVERLAP=150>> .env
+    echo USE_NETWORKX_KG=true>> .env
+    echo KG_MAX_HOPS=1>> .env
+    echo KG_TOP_ENTITIES=3>> .env
+    echo VECTOR_WEIGHT=0.7>> .env
+    echo KG_WEIGHT=0.3>> .env
+    echo FUSION_STRATEGY=adaptive>> .env
+    echo PERSIST_DIR=faiss_course_db>> .env
+    echo KG_PERSIST_DIR=knowledge_graph_db>> .env
+    echo COURSE_OUTLINES_FILE=course_outlines.jsonl>> .env
+    echo ENABLE_CACHING=true>> .env
+    echo EMBEDDING_BATCH_SIZE=32>> .env
+    echo NUM_WORKERS=4>> .env
+    echo [SUCCESS] Mixed configuration saved to .env
+)
+
+if "%config_choice%"=="4" (
+    echo.
+    echo [INFO] Using existing .env configuration
+)
+
+echo.
+
+REM ======================================================================
+REM STEP 3: DOCUMENT EXTRACTION
+REM ======================================================================
+
+echo ======================================================================
+echo STEP 3/4: Document Extraction
+echo ======================================================================
+echo.
+echo Do you have course outline documents to extract?
+echo (PDF or DOCX files in a folder)
+echo.
+set /p extract_docs="Extract documents now? (y/n): "
+
+if /i "%extract_docs%"=="y" (
+    echo.
+    echo [INFO] Running document extraction...
+    echo.
+    python Course_Outline_Extractor.py
+    
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Document extraction failed.
+        echo Please check:
+        echo   1. Update the folder path in Course_Outline_Extractor.py
+        echo   2. Ensure you have PDF/DOCX files in the folder
+        echo.
+        pause
+        exit /b 1
+    )
+    
+    echo.
+    echo [SUCCESS] Documents extracted to course_outlines.jsonl
+) else (
+    echo.
+    echo [INFO] Skipping document extraction
+    echo Make sure course_outlines.jsonl exists before continuing
+    echo.
+    if not exist course_outlines.jsonl (
+        echo [ERROR] course_outlines.jsonl not found!
+        echo Please run: python Course_Outline_Extractor.py
+        pause
+        exit /b 1
+    )
+)
+
+echo.
+
+REM ======================================================================
+REM STEP 4: BUILD DATABASE
+REM ======================================================================
+
+echo ======================================================================
+echo STEP 4/4: Build Vector Database and Knowledge Graph
+echo ======================================================================
+echo.
+echo This will create the vector database and knowledge graph.
+echo This may take 5-15 minutes depending on:
+echo   - Number of documents
+echo   - Model configuration
+echo   - Internet speed (if using OpenAI)
+echo.
+set /p build_db="Build database now? (y/n): "
+
+if /i "%build_db%"=="y" (
+    echo.
+    echo [INFO] Building database...
+    echo Please wait...
+    echo.
+    
+    python enhanced_ingestion.py
+    
+    if %errorlevel% neq 0 (
+        echo.
+        echo [ERROR] Database build failed.
+        echo Please check the error messages above.
+        pause
+        exit /b 1
+    )
+    
+    echo.
+    echo [SUCCESS] Database built successfully!
+) else (
+    echo.
+    echo [INFO] Skipping database build
+    echo You can build it later with: python enhanced_ingestion.py
+    pause
+    exit /b 0
+)
+
+REM ======================================================================
+REM LAUNCH CHATBOT
+REM ======================================================================
+
+echo.
+echo ======================================================================
+echo           Setup Complete!
+echo ======================================================================
+echo.
+echo Your RAG system is ready to use!
+echo.
+echo What would you like to do?
+echo.
+echo   1. Launch the chatbot (Streamlit UI)
+echo   2. Test different model combinations
+echo   3. Exit
+echo.
+set /p next_action="Enter your choice (1-3): "
+
+if "%next_action%"=="1" (
+    echo.
+    echo [INFO] Launching chatbot...
+    echo The chatbot will open in your browser at http://localhost:8501
+    echo Press Ctrl+C to stop the server
+    echo.
+    streamlit run enhanced_chatbot_metrics.py
+)
+
+if "%next_action%"=="2" (
+    echo.
+    echo [INFO] Running model tests...
+    echo.
+    python model_tester.py
+    echo.
+    echo [INFO] Test results saved to test_results/
+    pause
+)
+
+if "%next_action%"=="3" (
+    echo.
+    echo Thank you for using the Course RAG System!
+    echo.
+    echo To start the chatbot later, run:
+    echo   streamlit run enhanced_chatbot_metrics.py
+    echo.
+    pause
+    exit /b 0
+)
+
+REM ======================================================================
+REM Save this as: QUICK_START.bat
+REM To use: Double-click this file
+REM ======================================================================

@@ -1,0 +1,36 @@
+{
+  "session_id": "20251130_105842",
+  "total_queries": 1,
+  "timestamp": "2025-11-30T10:59:28.175392",
+  "timing": {
+    "avg_total_time": 4.781619548797607,
+    "avg_retrieval_time": 0.6714510917663574,
+    "avg_generation_time": 4.009273529052734,
+    "max_total_time": 4.781619548797607,
+    "min_total_time": 4.781619548797607
+  },
+  "retrieval": {
+    "avg_vector_results": 1.0,
+    "avg_kg_results": 1.0,
+    "avg_total_results": 2.0,
+    "fusion_strategies": {
+      "adaptive": 1
+    }
+  },
+  "quality": {
+    "avg_answer_length": 208.0,
+    "avg_context_length": 799.0,
+    "avg_relevance_score": 0.5
+  },
+  "resources": {
+    "avg_memory_used_mb": 67.29296875,
+    "max_memory_used_mb": 67.29296875,
+    "avg_cpu_percent": 23.1
+  },
+  "model_config": {
+    "embedding_provider": "sentence-transformers",
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "llm_provider": "ollama",
+    "llm_model": "llama3.2"
+  }
+}
