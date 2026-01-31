@@ -3,7 +3,16 @@ enhanced_chatbot_metrics.py - Windows-compatible Streamlit chatbot
 Enhanced with hybrid Vector DB + Knowledge Graph retrieval + Metrics tracking
 Run: streamlit run enhanced_chatbot_metrics.py
 """
+import os
+import warnings
 
+# Fix OpenMP library conflict
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
+
+# Suppress PyTorch warnings
+warnings.filterwarnings('ignore', message='.*torch.classes.*')
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 import os
 import json
 import time

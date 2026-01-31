@@ -2,8 +2,8 @@ from config import Config
 
 # Set new model configuration
 Config.set_model_config(
-    embedding_key="bge-small",
-    llm_key="mistral"
+    embedding_key="text-embedding-3-small",
+    llm_key="gpt-4o-mini"
 )
 
 print("✓ Configuration updated!")
