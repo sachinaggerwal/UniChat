@@ -1,0 +1,586 @@
+<!--Version 5-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UniChat – Carleton University | About Us</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
+  <style>
+    :root {
+      --carleton-red: #c8102e;
+      --light-gray: #f5f5f5;
+      --border-gray: #e0e0e0;
+      --text-dark: #111111;
+      --chat-dark: #2f2f2f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-dark);
+      background-color: #ffffff;
+      font-weight: 400;
+    }
+
+    h1, h2 {
+      font-weight: 700;
+    }
+
+    p {
+      font-weight: 400;
+      line-height: 1.8;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: 16px;
+      color: #333;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-gray);
+      animation: headerLoad 0.6s ease-out;
+    }
+
+    @keyframes headerLoad {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .top-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px 10px;
+    }
+
+    .logo img {
+      height: 54px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      font-size: 15px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      padding: 4px 0;
+      border-radius: 999px;
+    }
+
+    .nav-links a.active {
+      background-color: var(--carleton-red);
+      color: white;
+      padding: 4px 12px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover:not(.active) {
+      color: var(--carleton-red);
+    }
+
+    .user-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1.5px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .header-underline {
+      border-top: 3px solid var(--carleton-red);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 24px;
+      display: flex;
+      gap: 24px;
+      height: calc(100vh - 80px);
+      animation: pageLoad 0.8s ease-out;
+    }
+
+    @keyframes pageLoad {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .main {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .main-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .main-underline {
+      border-top: 3px solid var(--carleton-red);
+      margin-bottom: 20px;
+    }
+
+    .about-section {
+      margin-bottom: 40px;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInSection 0.8s ease-out forwards;
+      animation-delay: 0.3s;
+    }
+
+    @keyframes fadeInSection {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .about-section h2 {
+      margin-bottom: 12px;
+      color: var(--carleton-red);
+    }
+
+    .team-section {
+      position: relative;
+      padding: 30px 0;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInSection 0.8s ease-out forwards;
+      animation-delay: 0.3s;
+    }
+
+    .team-section h2 {
+      margin-bottom: 20px;
+      color: var(--carleton-red);
+      font-size: 28px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .team-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(200, 16, 46, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .team-card,
+    .close-btn,
+    .nav-links a {
+      cursor: pointer;
+    }
+
+    .team-card:hover,
+    .close-btn:hover,
+    .nav-links a:hover {
+      cursor: pointer;
+    }
+
+    .team-card:active {
+      cursor: grabbing;
+    }
+
+    .team-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, 
+        rgba(200, 16, 46, 0.05) 0%, 
+        rgba(200, 16, 46, 0.01) 100%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 20px;
+      z-index: -1;
+    }
+
+    .team-card:hover::before {
+      opacity: 1;
+    }
+
+    .team-card:hover {
+      transform: translateY(-12px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(200, 16, 46, 0.25),
+                  0 10px 30px rgba(200, 16, 46, 0.2),
+                  0 0 40px rgba(200, 16, 46, 0.15),
+                  0 0 0 1px rgba(200, 16, 46, 0.2);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Team card image sizing (single source of truth) */
+    .team-card img {
+      width: 100%;
+      height: 200px;              /* adjust 180–240 if you want */
+      object-fit: cover;          /* fills the frame nicely */
+      object-position: center 20%;/* slightly higher than center to show faces more */
+      border-radius: 14px;
+      display: block;
+      margin-bottom: 14px;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+    }
+
+    .team-card:hover img {
+      transform: scale(1.03);
+      box-shadow: 0 8px 24px rgba(200, 16, 46, 0.25);
+    }
+
+    .team-card:hover img {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(200, 16, 46, 0.25);
+    }
+
+    .team-name {
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+
+    .team-card:hover .team-name {
+      color: var(--carleton-red);
+    }
+
+    .team-role {
+      font-size: 14px;
+      color: #666;
+      transition: color 0.3s ease;
+    }
+
+    .team-card:hover .team-role {
+      color: #444;
+    }
+
+    .team-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -10%;
+      width: 120%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(200, 16, 46, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(200, 16, 46, 0.03) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      transform: translateY(40px) scale(0.9);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      border: 1px solid rgba(200, 16, 46, 0.1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .modal.active .modal-content img {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.2s;
+    }
+
+    .modal-content h2,
+    .modal-content h4,
+    .modal-content p {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .modal.active .modal-content h2 {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.3s;
+    }
+
+    .modal.active .modal-content h4 {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.4s;
+    }
+
+    .modal.active .modal-content p {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.5s;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(200, 16, 46, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--carleton-red);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(200, 16, 46, 0.2);
+    }
+
+    .close-btn:hover {
+      background: var(--carleton-red);
+      color: white;
+      transform: rotate(90deg);
+    }
+ 
+    .blur-background {
+      filter: blur(6px);
+      transition: 0.3s ease;
+    }
+
+    .modal-email {
+      margin-top: 15px;
+      font-size: 14px;
+      color: var(--carleton-red);
+      font-weight: 500;
+    }
+  </style>
+</head>
+
+
+<body>
+
+    <header>
+        <div class="top-nav">
+            <div class="logo">
+            <img src="carleton-header-logo.png" />
+            </div>
+
+            <nav class="nav-links">
+                <!-- <a href="index.html" class="active">UniChat</a> -->
+                <a href="https://admissions.carleton.ca/programs/?utm_source=google-ppc&amp;utm_medium=paid&amp;utm_campaign=awareness-x&amp;utm_term=carleton%20university%20programs&amp;utm_content=22922969502&amp;gad_source=1&amp;gad_campaignid=22922969502&amp;gbraid=0AAAAAB0mc3n3dzsUlNU_syjSqKANmJyBz&amp;gclid=Cj0KCQiAubrJBhCbARIsAHIdxD_g1prYGPYrN5MYe-OfCRwM9mcqiLabkSoonLSt6cUUj6glOxb99NMaAj9mEALw_wcB">
+                Programs
+                </a>
+                <a href="https://research.carleton.ca/">Research</a>
+                <a href="https://library.carleton.ca/">Library</a>
+                <a href="https://carleton.ca/brightspace/">Brightspace</a>
+                <!-- <a href="faq.html" data-nav="faq">FAQ</a>
+                <a href="about.html" data-nav="about">About UniChat</a> -->
+            </nav>
+
+      <div class="nav-right">
+        <span class="locale-active">EN</span>
+        <span class="divider">|</span>
+            <a
+                data-lang-switch="fr"
+                data-target-page="how-to-use-fr.html">FR</a>
+            <div class="user-icon">👤</div>
+        </div>
+    </header>
+
+  <main class="page">
+  <section class="main">
+
+    <h1 class="main-title">UniChat</h1>
+    <div class="main-underline"></div>
+
+    <!-- About -->
+    <div class="about-section">
+    <h2>About UniChat</h2>
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin rhoncus, leo sit amet consequat vehicula, arcu arcu tristique justo, vel molestie urna justo nec ligula. 
+        Nunc tincidunt erat ac elit bibendum, et rutrum massa varius. Suspendisse efficitur ipsum quam, non accumsan velit imperdiet vehicula. 
+        Integer facilisis mauris vel sapien dapibus pretium. Nulla congue tempor dolor, at aliquet leo tincidunt at. 
+        Suspendisse ipsum eros, porta quis sem nec, dapibus feugiat tortor. Aliquam tempus pellentesque lorem sed sodales. 
+                
+        Fusce eget nunc ante. Vestibulum et fermentum augue, et pretium dolor. Aliquam sit amet ante vitae ligula egestas vehicula. 
+        Pellentesque mollis ligula eget eros lacinia, nec condimentum purus bibendum. Duis eleifend viverra varius. Aenean laoreet nisl risus, dapibus vulputate erat aliquet commodo. Fusce congue enim in iaculis semper.
+    </p>
+    </div>
+
+    <!-- Our Goal -->
+    <div class="about-section">
+      <h2>Our Goal</h2>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin rhoncus, leo sit amet consequat vehicula, arcu arcu tristique justo, vel molestie urna justo nec ligula. 
+        Nunc tincidunt erat ac elit bibendum, et rutrum massa varius. Suspendisse efficitur ipsum quam, non accumsan velit imperdiet vehicula. 
+        Integer facilisis mauris vel sapien dapibus pretium. Nulla congue tempor dolor, at aliquet leo tincidunt at. 
+        Suspendisse ipsum eros, porta quis sem nec, dapibus feugiat tortor. Aliquam tempus pellentesque lorem sed sodales. 
+      </p>
+    </div>
+
+
+    <!-- Meet Our Team -->
+    <div class="team-section">
+        <h2>Meet Our Team</h2>
+
+        <div class="team-grid">
+
+            <div class="team-card"
+            onclick="openModal(this.querySelector('img').src,'Ethan Legault','Project Lead','Detailed bio about this team member.','ethanlegault3@cmail.carleton.ca')">
+                <img src="assets/ethan.png">
+                <div class="team-name">Ethan Legault</div>
+                <div class="team-role">Project Lead</div>
+            </div>
+
+            <div class="team-card"
+            onclick="openModal(this.querySelector('img').src,'Mathieu Seguin','Frontend Developer','Detailed bio here.','mathieuseguin@cmail.carleton.ca')">
+                <img src="assets/mat.png">
+                <div class="team-name">Mathieu Seguin</div>
+                <div class="team-role">Frontend Developer</div>
+            </div>
+
+            <div class="team-card"
+            onclick="openModal(this.querySelector('img').src,'Sachin Aggerwal','Backend Developer','Detailed bio here.','sachinaggerwal@cmail.carleton.ca')">
+                <img src="assets/sachin.png">
+                <div class="team-name">Sachin Aggerwal</div>
+                <div class="team-role">Backend Developer</div>
+            </div>
+
+            <div class="team-card"
+            onclick="openModal(this.querySelector('img').src,'Sanudha Gamwarige','Research Specialist','Detailed bio here.','sanudhagamwarige@cmail.carleton.ca')">
+                <img src="assets/san.png">
+                <div class="team-name">Sanudha Gamwarige</div>
+                <div class="team-role">Research Specialist</div>
+            </div>
+
+        </div>
+    </div>
+
+  </section>
+  </main>
+
+    <!-- Modal -->
+    <div class="modal" id="teamModal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <img id="modalImg">
+            <h2 id="modalName"></h2>
+            <h4 id="modalRole"></h4>
+            <p id="modalBio"></p>
+            <p id="modalEmail" class="modal-email"></p>
+        </div>
+    </div>
+
+    <script>
+
+      function openModal(img,name,role,bio,email){
+
+        document.getElementById("modalImg").src = img;
+        document.getElementById("modalName").textContent = name;
+        document.getElementById("modalRole").textContent = role;
+        document.getElementById("modalBio").textContent = bio;
+        document.getElementById("modalEmail").textContent = "Contact: " + email;
+        document.getElementById("teamModal").classList.add("active");
+        document.querySelector(".page").classList.add("blur-background");
+        document.querySelector("header").classList.add("blur-background");
+      }
+
+        document.addEventListener("keydown", function(event){
+          if(event.key === "Escape"){
+            closeModal();
+          }
+        });
+
+      function closeModal(event){
+        if(!event || event.target.id === "teamModal"){
+          document.getElementById("teamModal").classList.remove("active");
+          document.querySelector(".page").classList.remove("blur-background");
+          document.querySelector("header").classList.remove("blur-background");
+        }
+      }
+
+  </script>
+  
+</body>
+</html>

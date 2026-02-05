@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>How to use UniChat – Carleton University</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --carleton-red: #c8102e;
+      --light-gray: #f5f5f5;
+      --border-gray: #e0e0e0;
+      --text-dark: #111111;
+      --chat-dark: #2f2f2f;
+      --muted: #666;
+      --soft-red: #fde6ea;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-dark);
+      background-color: #ffffff;
+    }
+
+    header { background-color: #ffffff; border-bottom: 1px solid var(--border-gray); }
+
+    .top-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px 10px;
+      gap: 20px;
+    }
+
+    .logo { display: flex; align-items: center; }
+    .logo img { height: 54px; width: auto; display: block; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 15px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      padding: 4px 0;
+      border-radius: 999px;
+    }
+
+    .nav-links a.active {
+      background-color: var(--carleton-red);
+      color: #ffffff;
+      padding: 4px 12px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover:not(.active) { color: var(--carleton-red); }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        white-space: nowrap;
+        }
+
+        .nav-right span,
+        .nav-right a {
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+        }
+
+        .nav-right .divider {
+        color: #999;
+        margin: 0 4px;
+        }
+
+        .locale-active {
+        font-weight: 600;
+        }
+
+        .nav-right a:hover {
+        color: var(--carleton-red);
+        }
+
+        .user-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        border: 1.5px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        margin-left: 8px;
+        }
+
+    .header-underline { border-top: 3px solid var(--carleton-red); }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 24px;
+      display: flex;
+      gap: 24px;
+      height: calc(100vh - 80px);
+    }
+
+    .sidebar {
+      width: 260px;
+      border-right: 1px solid var(--border-gray);
+      padding-right: 16px;
+      display: flex;
+      flex-direction: column;
+      min-width: 220px;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .toc {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+      overflow: auto;
+    }
+
+    .toc a {
+      display: block;
+      padding: 8px 10px;
+      text-decoration: none;
+      color: #333;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid transparent;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+
+    .toc a:hover {
+      background: var(--light-gray);
+      border-color: var(--border-gray);
+    }
+
+    .toc a.active {
+      background: var(--chat-dark);
+      color: #fff;
+      border-color: var(--chat-dark);
+      font-weight: 600;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: auto;
+      padding-right: 2px;
+      scroll-behavior: smooth;
+      scroll-padding-top: 16px;
+    }
+
+    .main-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+    .main-underline { width: 100%; border-top: 3px solid var(--carleton-red); margin-bottom: 16px; }
+
+    .hero {
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 16px;
+      background: linear-gradient(180deg, #fff 0%, #fff 60%, var(--soft-red) 200%);
+      margin-bottom: 16px;
+    }
+
+    .hero h2 { font-size: 18px; margin-bottom: 8px; }
+    .hero p { color: var(--muted); line-height: 1.5; font-size: 14px; }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--light-gray);
+      border: 1px solid var(--border-gray);
+      font-size: 13px;
+      color: #333;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      grid-column: span 6;
+      border: 1px solid var(--border-gray);
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    }
+
+    .card h3 { font-size: 15px; margin-bottom: 8px; }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+    .callout {
+      border-left: 4px solid var(--carleton-red);
+      background: #fff;
+      border: 1px solid var(--border-gray);
+      border-left: 4px solid var(--carleton-red);
+      border-radius: 12px;
+      padding: 12px 12px 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    .callout strong { display: block; margin-bottom: 6px; }
+    .callout span { display: block; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .section {
+      margin-bottom: 18px;
+      scroll-margin-top: 16px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      margin: 18px 0 10px;
+    }
+
+    .section p, .section li {
+      color: #333;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+    }
+
+    .kbd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid var(--border-gray);
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    details {
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      margin-top: 10px;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      list-style: none;
+    }
+
+    details summary::-webkit-details-marker { display: none; }
+
+    .mini {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      border-top: 1px solid var(--border-gray);
+      padding-top: 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .page { flex-direction: column; height: auto; }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-gray);
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+      }
+      .card { grid-column: span 12; }
+    }
+  </style>
+</head>
+
+<body>
+     <header>
+        <div class="top-nav">
+            <div class="logo">
+            <img src="carleton-header-logo.png" />
+            </div>
+
+            <nav class="nav-links">
+                <!-- <a href="index.html" class="active">UniChat</a> -->
+                <a href="https://admissions.carleton.ca/programs/?utm_source=google-ppc&amp;utm_medium=paid&amp;utm_campaign=awareness-x&amp;utm_term=carleton%20university%20programs&amp;utm_content=22922969502&amp;gad_source=1&amp;gad_campaignid=22922969502&amp;gbraid=0AAAAAB0mc3n3dzsUlNU_syjSqKANmJyBz&amp;gclid=Cj0KCQiAubrJBhCbARIsAHIdxD_g1prYGPYrN5MYe-OfCRwM9mcqiLabkSoonLSt6cUUj6glOxb99NMaAj9mEALw_wcB">
+                Programs
+                </a>
+                <a href="https://research.carleton.ca/">Research</a>
+                <a href="https://library.carleton.ca/">Library</a>
+                <a href="https://carleton.ca/brightspace/">Brightspace</a>
+                <!-- <a href="faq.html" data-nav="faq">FAQ</a>
+                <a href="about.html" data-nav="about">About UniChat</a> -->
+            </nav>
+
+      <div class="nav-right">
+        <span class="locale-active">EN</span>
+        <span class="divider">|</span>
+            <a
+                data-lang-switch="fr"
+                data-target-page="how-to-use-fr.html">FR</a>
+            <div class="user-icon">👤</div>
+        </div>
+    </header>
+
+  <main class="page">
+    <aside class="sidebar">
+      <h2>ON THIS PAGE</h2>
+      <nav class="toc" id="toc">
+        <a href="#quickstart">Quick start</a>
+        <a href="#bestfor">What UniChat is best for</a>
+        <a href="#howitworks">How UniChat works</a>
+        <a href="#betterquestions">Ask better questions</a>
+        <a href="#citations">Understanding citations</a>
+        <a href="#privacy">Access & privacy</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#feedback">Feedback</a>
+      </nav>
+    </aside>
+
+    <section class="main">
+      <h1 class="main-title">How to use UniChat</h1>
+      <div class="main-underline"></div>
+
+      <div class="hero">
+        <h2>Your campus assistant with citations</h2>
+        <p>
+          UniChat helps you find and understand program, course, and university information using connected
+          institutional sources. When accuracy matters, check the citations and follow the link back to the
+          original page or document.
+        </p>
+        <div class="pill-row" aria-label="Key features">
+          <div class="pill">✅ Citations you can verify</div>
+          <div class="pill">🔒 Respects your access (RBAC)</div>
+          <div class="pill">🧭 Better questions = better answers</div>
+        </div>
+      </div>
+
+      <div class="section" id="quickstart">
+        <h2>Quick start</h2>
+        <div class="grid">
+            <div class="card">
+            <h3>Quick start (30 seconds)</h3>
+            <p>
+                1) Ask one clear question. 2) Read the answer. 3) Open the citations to verify.
+                Then ask a follow-up like “show the policy section” or “summarize in 5 bullets.”
+            </p>
+            </div>
+            <div class="card">
+            <h3>Good prompts to copy</h3>
+            <p>
+                • “What are the prerequisites for <span class="kbd">IRM4005</span>? Cite the official source.”<br />
+                • “Summarize the late penalty policy in 5 bullets, with citations.”<br />
+                • “Compare these two sources and highlight differences.”
+            </p>
+            </div>
+        </div>
+    </div>
+
+      <div class="callout">
+        <strong>Tip</strong>
+        <span>
+          If the answer looks uncertain or missing details, ask UniChat to “search again and cite every major claim.”
+          If sources conflict, ask it to cite both and explain which is most official.
+        </span>
+      </div>
+
+      <div class="section" id="bestfor">
+        <h2>What UniChat is best for</h2>
+        <ul>
+          <li>Finding official info faster (program requirements, prerequisites, deadlines, forms, office pages, policies)</li>
+          <li>Explaining complex documents in plain language (while citing the relevant sections)</li>
+          <li>Comparing sources (what changed, what differs, which is newest)</li>
+          <li>Step-by-step guidance for common processes (with sources for each step)</li>
+        </ul>
+      </div>
+
+      <div class="section" id="howitworks">
+        <h2>How UniChat works</h2>
+        <p>
+          UniChat typically (1) retrieves relevant passages from connected sources, then (2) generates a response from
+          that evidence. That’s why citations matter: they show where the answer came from so you can verify it.
+        </p>
+
+        <details>
+          <summary>What if UniChat can’t find something?</summary>
+          <div class="mini">
+            Try adding context (course code, term, office name). If it still can’t find it, ask:
+            “What sources did you check, and what keywords did you use?” If it’s not documented publicly, UniChat should
+            say so rather than guessing.
+          </div>
+        </details>
+      </div>
+
+      <div class="section" id="betterquestions">
+        <h2>Ask better questions</h2>
+        <p>Include key context whenever possible:</p>
+        <ul>
+          <li>Course code (example: IRM4005)</li>
+          <li>Program (example: BIT IRM)</li>
+          <li>Term/year (example: Winter 2026)</li>
+          <li>Office/unit (example: Registrar, Library, Department)</li>
+          <li>Desired format (bullets, steps, short summary, comparison)</li>
+        </ul>
+
+        <details>
+          <summary>Examples</summary>
+          <div class="mini">
+            • “Explain <span class="kbd">[policy]</span> in plain language and cite the exact section.”<br />
+            • “Give me a step-by-step checklist for <span class="kbd">[process]</span> with sources for each step.”<br />
+            • “If there are conflicting sources, cite both and tell me which one appears most official.”
+          </div>
+        </details>
+      </div>
+
+      <div class="section" id="citations">
+        <h2>Understanding citations</h2>
+        <ul>
+          <li><strong>Strong citations</strong> usually mean UniChat found clear supporting evidence.</li>
+          <li><strong>Thin or missing citations</strong> is a sign to request a re-check or a narrower question.</li>
+          <li>For assignments or official decisions, <strong>open the citation</strong> and confirm the wording yourself.</li>
+        </ul>
+      </div>
+
+      <div class="section" id="privacy">
+        <h2>Access & privacy</h2>
+        <p>
+          UniChat respects role-based access. You’ll only see what you’re allowed to view.
+          Avoid pasting sensitive personal information (student number, grades, passwords, medical/financial info).
+        </p>
+
+        <details>
+          <summary>If you think you should have access</summary>
+          <div class="mini">
+            Make sure you’re signed in with the right account. If access still seems wrong, contact your course staff or
+            the office that manages the resource.
+          </div>
+        </details>
+      </div>
+
+      <div class="section" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+
+        <details>
+          <summary>“I cannot find that”</summary>
+          <div class="mini">
+            Add more keywords (course code, term, office). Then ask:
+            “Search broader and list the top 3 relevant sources with citations.”
+          </div>
+        </details>
+
+        <details>
+          <summary>“This seems outdated”</summary>
+          <div class="mini">
+            Ask: “Use the most recent source available, tell me the date, and cite it.”
+          </div>
+        </details>
+
+        <details>
+          <summary>“The answer is too long”</summary>
+          <div class="mini">
+            Ask: “Give me a 3-bullet summary, then a detailed version.” Or: “Max 8 bullets.”
+          </div>
+        </details>
+      </div>
+
+      <div class="section" id="feedback">
+        <h2>Feedback</h2>
+        <p>
+          If you see broken citations, missing sources, or unclear answers, leave feedback (when available).
+          Helpful feedback includes the question you asked, what you expected, and what UniChat returned.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  // Stable TOC highlight: choose the section closest to the top of the scroll container.
+  const main = document.querySelector('.main');
+  const tocLinks = Array.from(document.querySelectorAll('#toc a'));
+
+  const sections = tocLinks
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+
+  function setActive(id) {
+    tocLinks.forEach(a => a.classList.remove('active'));
+    const active = tocLinks.find(a => a.getAttribute('href') === `#${id}`);
+    if (active) active.classList.add('active');
+  }
+
+  function updateActiveOnScroll() {
+    const mainRect = main.getBoundingClientRect();
+
+    // "Offset" defines how far from the top we consider a section "active".
+    // Increase if you want it to switch later; decrease if you want it to switch earlier.
+    const offset = 64;
+
+    let currentId = sections[0]?.id;
+
+    for (const section of sections) {
+      const r = section.getBoundingClientRect();
+      const topWithinMain = r.top - mainRect.top;
+
+      if (topWithinMain <= offset) {
+        currentId = section.id; // keep updating until we pass the offset
+      } else {
+        break;
+      }
+    }
+
+    if (currentId) setActive(currentId);
+  }
+
+  // Smooth scroll + correct highlight on click
+  tocLinks.forEach(a => {
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+
+      e.preventDefault();
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Update highlight immediately (so it feels responsive)
+      setActive(target.id);
+
+      // Update again after scroll settles (covers smooth scrolling)
+      setTimeout(updateActiveOnScroll, 350);
+    });
+  });
+
+  // Initial + on scroll
+  updateActiveOnScroll();
+  main.addEventListener('scroll', () => {
+    // Light throttle to avoid work every pixel
+    window.requestAnimationFrame(updateActiveOnScroll);
+  });
+</script>
+</body>
+</html>

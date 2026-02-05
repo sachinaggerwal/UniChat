@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UniChat Forum – Reviews & Insights</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --carleton-red: #c8102e;
+      --light-gray: #f5f5f5;
+      --border-gray: #e0e0e0;
+      --text-dark: #111111;
+      --chat-dark: #2f2f2f;
+      --muted: #666;
+      --soft-red: #fde6ea;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-dark);
+      background-color: #ffffff;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-gray);
+    }
+
+    .top-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px 10px;
+    }
+
+    .logo img { height: 54px; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .user-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1.5px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-underline {
+      border-top: 3px solid var(--carleton-red);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: flex;
+      gap: 24px;
+      height: calc(100vh - 80px);
+    }
+
+    /* Sidebar */
+
+    .sidebar {
+      width: 260px;
+      border-right: 1px solid var(--border-gray);
+      padding-right: 16px;
+    }
+
+    .sidebar h2 {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .toc {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toc a {
+      padding: 8px 10px;
+      text-decoration: none;
+      color: #333;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .toc a:hover {
+      background: var(--light-gray);
+    }
+
+    .toc a.active {
+      background: var(--chat-dark);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Main */
+
+    .main {
+      flex: 1;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .main-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .main-underline {
+      border-top: 3px solid var(--carleton-red);
+      margin-bottom: 16px;
+    }
+
+    .hero {
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 16px;
+      background: linear-gradient(180deg, #fff 0%, #fff 60%, var(--soft-red) 200%);
+      margin-bottom: 18px;
+    }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--light-gray);
+      border: 1px solid var(--border-gray);
+    }
+
+    /* Forum Squares */
+
+    .thread {
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #fff;
+    }
+
+    .thread-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .thread h3 { font-size: 15px; }
+
+    .meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .thread p {
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 8px 0;
+    }
+
+    .thread-footer {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .callout {
+      border-left: 4px solid var(--carleton-red);
+      background: #fff;
+      border: 1px solid var(--border-gray);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .page { flex-direction: column; height: auto; }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-gray);
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="top-nav">
+            <div class="logo">
+            <img src="carleton-header-logo.png" />
+            </div>
+
+            <nav class="nav-links">
+                <!-- <a href="index.html" class="active">UniChat</a> -->
+                <a href="https://admissions.carleton.ca/programs/?utm_source=google-ppc&amp;utm_medium=paid&amp;utm_campaign=awareness-x&amp;utm_term=carleton%20university%20programs&amp;utm_content=22922969502&amp;gad_source=1&amp;gad_campaignid=22922969502&amp;gbraid=0AAAAAB0mc3n3dzsUlNU_syjSqKANmJyBz&amp;gclid=Cj0KCQiAubrJBhCbARIsAHIdxD_g1prYGPYrN5MYe-OfCRwM9mcqiLabkSoonLSt6cUUj6glOxb99NMaAj9mEALw_wcB">
+                Programs
+                </a>
+                <a href="https://research.carleton.ca/">Research</a>
+                <a href="https://library.carleton.ca/">Library</a>
+                <a href="https://carleton.ca/brightspace/">Brightspace</a>
+                <!-- <a href="faq.html" data-nav="faq">FAQ</a>
+                <a href="about.html" data-nav="about">About UniChat</a> -->
+            </nav>
+
+      <div class="nav-right">
+        <span class="locale-active">EN</span>
+        <span class="divider">|</span>
+            <a
+                data-lang-switch="fr"
+                data-target-page="how-to-use-fr.html">FR</a>
+            <div class="user-icon">👤</div>
+        </div>
+    </header>
+
+<main class="page">
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <h2>FORUM SECTIONS</h2>
+    <nav class="toc" id="forumFilters">
+      <a href="#" class="active" data-filter="all">All Discussions</a>
+      <a href="#" data-filter="course">Course Reviews</a>
+      <a href="#" data-filter="tips">UniChat Tips</a>
+      <a href="#" data-filter="accuracy">Accuracy & Citations</a>
+      <a href="#" data-filter="features">Feature Requests</a>
+    </nav>
+  </aside>
+
+  <!-- Main Page Content/Hea -->
+  <section class="main">
+    <h1 class="main-title">Community Forum</h1>
+    <div class="main-underline"></div>
+
+    <div class="hero">
+      <p>
+        Welcome to UniChats Community Forum! Please share your experience, reviews, and insights about UniChat.
+        Learn how students are using it for courses, research, and campus activities.
+      </p>
+      <div class="pill-row">
+        <div class="pill">💬 Insightful information</div>
+        <div class="pill">⭐ Reviews & ratings</div>
+        <div class="pill">📚 Course-specific tips</div>
+      </div>
+    </div>
+
+     <!-- Thread 1 -->
+    <div class="thread" data-category="course">
+      <div class="thread-header">
+        <h3>UniChat for IRM3005 – Worth it?</h3>
+        <span class="meta">Posted by David Lam · 3 days ago</span>
+      </div>
+      <p>
+        I’ve been using UniChat to summarize weekly readings and assignment criteria for IRM3005.
+        Anyone taking this course should try it.
+      </p>
+      <div class="thread-footer">
+        <span>👍 12</span>
+        <span>💬 4 replies</span>
+      </div>
+    </div>
+    
+      <!-- Thread 2 -->
+
+    <div class="thread" data-category="accuracy">
+      <div class="thread-header">
+        <h3>Accuracy – always double check</h3>
+        <span class="meta">Posted by John Singh · 7 days ago</span>
+      </div>
+      <p>
+        UniChat is great for finding information quickly. However, I think they should also add dates. 
+        Some of the information can be dated, which could throw students off.
+      </p>
+      <div class="thread-footer">
+        <span>👍 8</span>
+        <span>💬 6 replies</span>
+      </div>
+    </div>
+
+    <!-- Thread 3 -->
+
+    <div class="thread" data-category="features">
+      <div class="thread-header">
+        <h3>Metrics</h3>
+        <span class="meta">Posted by Samuel Jackson · 4 days ago</span>
+      </div>
+      <p>
+        I really liked the metrics feature within UniChat, it really shows how UniChat evalutes this information,
+        its something super interesting I liked. Could this be expanded further?
+      </p>
+      <div class="thread-footer">
+        <span>👍 10</span>
+        <span>💬 4 replies</span>
+      </div>
+    </div>
+
+    <!-- Thread 4 -->
+
+    <div class="thread" data-category="tips">
+      <div class="thread-header">
+        <h3>Fusion Strategy</h3>
+        <span class="meta">Posted by Tom Platz · 2 days ago</span>
+      </div>
+      <p>
+        When using UniChat try using different types of Fusion Strategies. You can find a variety of insightful
+        information. Its really amazing what UniChat can do!
+      </p>
+      <div class="thread-footer">
+        <span>👍 18</span>
+        <span>💬 2 replies</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Community reminder:</strong>
+      <span>UniChat does not tolerate disrespectful or hateful remarks. Please keep discussions
+        respectful and academic.
+      </span>
+    </div>
+  </section>
+
+</main>
+
+<!-- JavaScript for Sidebar Menu buttons -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const filters = document.querySelectorAll('#forumFilters a');
+    const threads = document.querySelectorAll('.thread');
+
+    filters.forEach(filter => {
+      filter.addEventListener('click', e => {
+        e.preventDefault();
+
+        filters.forEach(f => f.classList.remove('active'));
+        filter.classList.add('active');
+
+        const category = filter.dataset.filter;
+
+        threads.forEach(thread => {
+          thread.style.display =
+            category === 'all' || thread.dataset.category === category
+              ? ''
+              : 'none';
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

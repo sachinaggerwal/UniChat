@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About UniChat – Carleton University</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --carleton-red: #c8102e;
+      --light-gray: #f5f5f5;
+      --border-gray: #e0e0e0;
+      --text-dark: #111111;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-dark);
+      background-color: #ffffff;
+    }
+
+    /* Header / Nav (same as other pages) ---------------------------------- */
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-gray);
+    }
+
+    .top-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px 10px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      height: 54px;
+      width: auto;
+      display: block;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 15px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      padding: 4px 0;
+      border-radius: 999px;
+    }
+
+    .nav-links a.active {
+      background-color: var(--carleton-red);
+      color: #ffffff;
+      padding: 4px 12px;
+      font-weight: 600;
+    }
+
+    .nav-links a:hover:not(.active) {
+      color: var(--carleton-red);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .nav-right span,
+    .nav-right a {
+      cursor: pointer;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .nav-right .divider {
+      color: #999;
+      margin: 0 4px;
+    }
+
+    .locale-active {
+      font-weight: 600;
+    }
+
+    .nav-right a:hover {
+      color: var(--carleton-red);
+    }
+
+    .user-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1.5px solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .header-underline {
+      border-top: 3px solid var(--carleton-red);
+    }
+
+    /* About Page Layout ---------------------------------------------------- */
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .main-underline {
+      width: 100%;
+      border-top: 3px solid var(--carleton-red);
+      margin-bottom: 24px;
+    }
+
+    .intro-text {
+      font-size: 15px;
+      color: #444;
+      max-width: 800px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .about-card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      border: 1px solid #f0f0f0;
+      box-shadow: 0 0 0 1px #f5f5f5;
+      padding: 16px 18px 18px;
+      margin-bottom: 10px;
+    }
+
+    .about-card h2 {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .about-card p,
+    .about-card ul {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .about-card ul {
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    .tagline {
+      font-weight: 600;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <div class="top-nav">
+            <div class="logo">
+            <img src="carleton-header-logo.png" />
+            </div>
+
+            <nav class="nav-links">
+                <!-- <a href="index.html" class="active">UniChat</a> -->
+                <a href="https://admissions.carleton.ca/programs/?utm_source=google-ppc&amp;utm_medium=paid&amp;utm_campaign=awareness-x&amp;utm_term=carleton%20university%20programs&amp;utm_content=22922969502&amp;gad_source=1&amp;gad_campaignid=22922969502&amp;gbraid=0AAAAAB0mc3n3dzsUlNU_syjSqKANmJyBz&amp;gclid=Cj0KCQiAubrJBhCbARIsAHIdxD_g1prYGPYrN5MYe-OfCRwM9mcqiLabkSoonLSt6cUUj6glOxb99NMaAj9mEALw_wcB">
+                Programs
+                </a>
+                <a href="https://research.carleton.ca/">Research</a>
+                <a href="https://library.carleton.ca/">Library</a>
+                <a href="https://carleton.ca/brightspace/">Brightspace</a>
+                <!-- <a href="faq.html" data-nav="faq">FAQ</a>
+                <a href="about.html" data-nav="about">About UniChat</a> -->
+            </nav>
+
+      <div class="nav-right">
+        <span class="locale-active">EN</span>
+        <span class="divider">|</span>
+            <a
+                data-lang-switch="fr"
+                data-target-page="how-to-use-fr.html">FR</a>
+            <div class="user-icon">👤</div>
+        </div>
+    </header>
+
+  <!-- About content -->
+  <main>
+    <h1 class="page-title">About UniChat</h1>
+    <div class="main-underline"></div>
+
+    <p class="intro-text">
+      <span class="tagline">UniChat is a prototype AI assistant for Carleton’s Information Resource Management (IRM) community.</span>
+      It is designed to help students, staff, and faculty quickly find reliable information about IRM courses,
+      program requirements, and related resources by searching across curated university content.
+    </p>
+
+    <section class="about-grid">
+      <!-- Left column: main story -->
+      <div>
+        <div class="about-card">
+          <h2>Project Goals</h2>
+          <p>
+            The UniChat project explores how retrieval-augmented generation (RAG) can:
+          </p>
+          <ul>
+            <li>Make course and program information easier to find and understand.</li>
+            <li>Reduce repetitive questions sent to instructors and staff.</li>
+            <li>Provide students with a single, consistent entry point to IRM information.</li>
+            <li>Evaluate different LLMs and retrieval strategies in a real academic setting.</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h2>How UniChat Works</h2>
+          <p>
+            UniChat uses a RAG pipeline: your question is converted into a vector, relevant IRM documents are retrieved,
+            and an LLM generates an answer grounded in those sources. We experiment with:
+          </p>
+          <ul>
+            <li>Multiple embedding models and vector indexes.</li>
+            <li>Different LLMs (e.g., Gemini, Claude, Llama 3.2, Mistral).</li>
+            <li>Several RAG generation methods such as baseline top-k, re-ranking, query rewriting, and self-checking.</li>
+          </ul>
+          <p>
+            The interface you see is intentionally simple and Carleton-branded so the focus stays on the quality of the answers.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <h2>What UniChat Is Not</h2>
+          <p>
+            UniChat is an experimental tool and <strong>not</strong> an official academic advisor or policy authority.
+            For high-stakes questions (e.g., degree audits, appeals, or formal deadlines), always confirm details with:
+          </p>
+          <ul>
+            <li>Your official course outline on Brightspace.</li>
+            <li>The IRM program office or departmental websites.</li>
+            <li>Academic advising resources at Carleton.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right column: quick facts / team -->
+      <div>
+        <div class="about-card">
+          <h2>Quick Facts</h2>
+          <ul>
+            <li><strong>Status:</strong> Prototype / research project</li>
+            <li><strong>Audience:</strong> IRM students, staff, and faculty</li>
+            <li><strong>Scope:</strong> Selected IRM course outlines and program documents</li>
+            <li><strong>Access:</strong> Internal testing environment (not a public service)</li>
+          </ul>
+        </div>
+
+        <div class="about-card">
+          <h2>Project Team</h2>
+          <p>
+            UniChat is developed as a capstone project within the Bachelor of Information Technology – Information
+            Resource Management program. The team is responsible for:
+          </p>
+          <ul>
+            <li>Designing the Carleton-aligned user interface.</li>
+            <li>Building the RAG pipeline and evaluation framework.</li>
+            <li>Monitoring privacy, accessibility, and ethical considerations.</li>
+          </ul>
+          <p style="margin-top:6px;">
+            For questions about the project, please contact our capstone advisor at
+            <a href="mailto:OmairShafiq@cunet.carleton.ca">OmairShafiq@cunet.carleton.ca</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="lang.js"></script>
+</body>
+</html>
