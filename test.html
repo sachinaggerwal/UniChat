@@ -1,4 +1,4 @@
-<!--Version 5-->
+<!--Version 7-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -256,12 +256,11 @@
       -webkit-backdrop-filter: blur(16px);
     }
 
-    /* Team card image sizing (single source of truth) */
     .team-card img {
       width: 100%;
-      height: 200px;              /* adjust 180–240 if you want */
-      object-fit: cover;          /* fills the frame nicely */
-      object-position: center 20%;/* slightly higher than center to show faces more */
+      height: 200px;     
+      object-fit: cover;       
+      object-position: center 20%;
       border-radius: 14px;
       display: block;
       margin-bottom: 14px;
@@ -326,7 +325,7 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
+      z-index: 999999;
     }
 
     .modal.active {
@@ -341,13 +340,16 @@
       padding: 30px;
       border-radius: 20px;
       width: 90%;
-      max-width: 500px;
+      max-width: 780px;
       transform: translateY(40px) scale(0.9);
       opacity: 0;
       transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       border: 1px solid rgba(200, 16, 46, 0.1);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      gap: 28px;
+      align-items: stretch;
     }
 
     .modal.active .modal-content {
@@ -355,22 +357,66 @@
       opacity: 1;
     }
 
+    .modal-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 220px;
+      min-width: 220px;
+      gap: 10px;
+    }
+
     .modal-content img {
-      width: 100%;
+      width: 220px;
+      min-width: 220px;
       height: 240px;
       object-fit: cover;
+      object-position: center 20%;
       border-radius: 14px;
-      margin-bottom: 15px;
+      display: block;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateX(-10px);
       transition: all 0.4s ease;
     }
 
     .modal.active .modal-content img {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
       transition-delay: 0.2s;
+    }
+
+    .modal-left h2 {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .modal-left h4 {
+      text-align: center;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .modal-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding-top: 4px;
+      min-height: 260px;
+    }
+
+    .modal-bio-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .modal-fun-fact {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
     }
 
     .modal-content h2,
@@ -401,26 +447,27 @@
 
     .close-btn {
       position: absolute;
-      right: 15px;
-      top: 15px;
-      width: 32px;
-      height: 32px;
+      right: 14px;
+      top: 14px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      background: rgba(200, 16, 46, 0.1);
+      background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
-      color: var(--carleton-red);
-      transition: all 0.3s ease;
-      border: 1px solid rgba(200, 16, 46, 0.2);
+      color: #999;
+      transition: color 0.2s ease, background 0.2s ease;
+      border: none;
+      line-height: 1;
     }
 
     .close-btn:hover {
-      background: var(--carleton-red);
-      color: white;
-      transform: rotate(90deg);
+      background: #f0f0f0;
+      color: #333;
+      transform: none;
     }
  
     .blur-background {
@@ -429,11 +476,24 @@
     }
 
     .modal-email {
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 14px;
       color: var(--carleton-red);
       font-weight: 500;
+      border-left: 3px solid var(--carleton-red);
+      padding-left: 10px;
     }
+    
+    /* Hide modal image when it has no src (prevents broken-image icon) */
+    #modalImg:not([src]), 
+    #modalImg[src=""] {
+      display: none;
+    }
+
+    .modal-left { min-height: 260px; }
+
+
+
   </style>
 </head>
 
@@ -461,10 +521,9 @@
       <div class="nav-right">
         <span class="locale-active">EN</span>
         <span class="divider">|</span>
-            <a
-                data-lang-switch="fr"
-                data-target-page="how-to-use-fr.html">FR</a>
+            <a href="#" data-lang-switch="fr" data-target-page="how-to-use-fr.html">FR</a>
             <div class="user-icon">👤</div>
+        </div>
         </div>
     </header>
 
@@ -474,28 +533,11 @@
     <h1 class="main-title">UniChat</h1>
     <div class="main-underline"></div>
 
-    <!-- About -->
-    <div class="about-section">
-    <h2>About UniChat</h2>
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin rhoncus, leo sit amet consequat vehicula, arcu arcu tristique justo, vel molestie urna justo nec ligula. 
-        Nunc tincidunt erat ac elit bibendum, et rutrum massa varius. Suspendisse efficitur ipsum quam, non accumsan velit imperdiet vehicula. 
-        Integer facilisis mauris vel sapien dapibus pretium. Nulla congue tempor dolor, at aliquet leo tincidunt at. 
-        Suspendisse ipsum eros, porta quis sem nec, dapibus feugiat tortor. Aliquam tempus pellentesque lorem sed sodales. 
-                
-        Fusce eget nunc ante. Vestibulum et fermentum augue, et pretium dolor. Aliquam sit amet ante vitae ligula egestas vehicula. 
-        Pellentesque mollis ligula eget eros lacinia, nec condimentum purus bibendum. Duis eleifend viverra varius. Aenean laoreet nisl risus, dapibus vulputate erat aliquet commodo. Fusce congue enim in iaculis semper.
-    </p>
-    </div>
-
     <!-- Our Goal -->
     <div class="about-section">
       <h2>Our Goal</h2>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin rhoncus, leo sit amet consequat vehicula, arcu arcu tristique justo, vel molestie urna justo nec ligula. 
-        Nunc tincidunt erat ac elit bibendum, et rutrum massa varius. Suspendisse efficitur ipsum quam, non accumsan velit imperdiet vehicula. 
-        Integer facilisis mauris vel sapien dapibus pretium. Nulla congue tempor dolor, at aliquet leo tincidunt at. 
-        Suspendisse ipsum eros, porta quis sem nec, dapibus feugiat tortor. Aliquam tempus pellentesque lorem sed sodales. 
+        Our goal is to develop UniChat, an AI-powered chatbot that enhances how students, faculty, and staff at Carleton University access institutional information. </br> We aim to provide fast, accurate, and trustworthy answers through an intuitive conversational interface that simplifies navigating university resources. By leveraging modern AI and retrieval technologies, UniChat is designed to deliver reliable and explainable responses that users can confidently depend on. Ultimately, our mission is to improve accessibility, save time, and create a more efficient and user-friendly way for the university community to find the information they need.
       </p>
     </div>
 
@@ -503,35 +545,30 @@
     <!-- Meet Our Team -->
     <div class="team-section">
         <h2>Meet Our Team</h2>
-
         <div class="team-grid">
 
-            <div class="team-card"
-            onclick="openModal(this.querySelector('img').src,'Ethan Legault','Project Lead','Detailed bio about this team member.','ethanlegault3@cmail.carleton.ca')">
+            <div class="team-card" data-member="ethan">
                 <img src="assets/ethan.png">
                 <div class="team-name">Ethan Legault</div>
-                <div class="team-role">Project Lead</div>
+                <div class="team-role">Front-End Developer</div>
             </div>
 
-            <div class="team-card"
-            onclick="openModal(this.querySelector('img').src,'Mathieu Seguin','Frontend Developer','Detailed bio here.','mathieuseguin@cmail.carleton.ca')">
+            <div class="team-card" data-member="mathieu">
                 <img src="assets/mat.png">
                 <div class="team-name">Mathieu Seguin</div>
-                <div class="team-role">Frontend Developer</div>
+                <div class="team-role">Data &amp; Governance Engineer</div>
             </div>
 
-            <div class="team-card"
-            onclick="openModal(this.querySelector('img').src,'Sachin Aggerwal','Backend Developer','Detailed bio here.','sachinaggerwal@cmail.carleton.ca')">
+            <div class="team-card" data-member="sachin">
                 <img src="assets/sachin.png">
                 <div class="team-name">Sachin Aggerwal</div>
-                <div class="team-role">Backend Developer</div>
+                <div class="team-role">Back-End Developer</div>
             </div>
 
-            <div class="team-card"
-            onclick="openModal(this.querySelector('img').src,'Sanudha Gamwarige','Research Specialist','Detailed bio here.','sanudhagamwarige@cmail.carleton.ca')">
+            <div class="team-card" data-member="sanudha">
                 <img src="assets/san.png">
                 <div class="team-name">Sanudha Gamwarige</div>
-                <div class="team-role">Research Specialist</div>
+                <div class="team-role">Research Lead</div>
             </div>
 
         </div>
@@ -543,40 +580,91 @@
     <!-- Modal -->
     <div class="modal" id="teamModal" onclick="closeModal(event)">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">×</span>
-            <img id="modalImg">
-            <h2 id="modalName"></h2>
-            <h4 id="modalRole"></h4>
-            <p id="modalBio"></p>
-            <p id="modalEmail" class="modal-email"></p>
+            <span class="close-btn" onclick="event.stopPropagation(); closeModal();">×</span>
+            <div class="modal-left">
+                <img id="modalImg" src="" alt="">
+                <h2 id="modalName"></h2>
+                <h4 id="modalRole"></h4>
+            </div>
+            <div class="modal-info">
+                <div class="modal-bio-area">
+                    <p id="modalBio"></p>
+                    <p id="modalFunFact" class="modal-fun-fact"></p>
+                </div>
+                <p id="modalEmail" class="modal-email"></p>
+            </div>
         </div>
     </div>
 
     <script>
 
-      function openModal(img,name,role,bio,email){
+      const teamData = {
+        ethan: {
+          img: 'assets/ethan.png',
+          name: 'Ethan Legault',
+          role: 'Front-End Developer',
+          bio: "Ethan designed and developed UniChat's user interface, creating a clean, intuitive, and accessible experience for students and staff. He built the chat layout, navigation, and interactive components while ensuring consistency with university branding. Ethan also created system diagrams and visual documentation to illustrate how UniChat's components interact. His work ensures the platform is both easy to use and visually polished, allowing users to interact with the chatbot in a seamless and engaging way.",
+          email: 'ethanlegault3@cmail.carleton.ca',
+          funFact: 'Fun Fact: Ethan plays the piano and was the lead trumpet in his highschool band.'
+        },
+        mathieu: {
+          img: 'assets/mat.png',
+          name: 'Mathieu Seguin',
+          role: 'Data & Governance Engineer',
+          bio: "Mathieu developed the data pipeline that powers UniChat's ability to retrieve accurate and relevant university information. He worked on collecting and structuring institutional content through web scraping, metadata extraction, and document preparation to support the retrieval-augmented generation (RAG) system. His contributions also included helping implement the vector database integration and ensuring data was organized for efficient semantic search. By focusing on data quality, structure, and governance, Mathieu helped create the reliable information foundation that enables UniChat to deliver trustworthy responses.",
+          email: 'mathieuseguin@cmail.carleton.ca',
+          funFact: 'Fun Fact: Mathieu was a baby model in South Korea.'
+        },
+        sachin: {
+          img: 'assets/sachin.png',
+          name: 'Sachin Aggerwal',
+          role: 'Back-End Developer',
+          bio: "Sachin built the backend systems that enable UniChat's intelligent retrieval and response capabilities. He implemented the retrieval-augmented generation pipeline, including document chunking, embedding workflows, and vector database integration. His work ensures UniChat can efficiently search its knowledge base and generate accurate, context-aware responses. Sachin's contributions were critical in developing the technical infrastructure that powers the chatbot.",
+          email: 'sachinaggerwal@cmail.carleton.ca',
+          funFact: 'Fun Fact: Sachin owns a massive katana collection.'
+        },
+        sanudha: {
+          img: 'assets/san.png',
+          name: 'Sanudha Gamwarige',
+          role: 'Research Lead',
+          bio: "Sanudha conducted research that guided UniChat's design and functionality, ensuring the system was informed by current advancements in AI and chatbot technologies. He analyzed existing solutions, identified gaps, and helped define features that improve response accuracy and explainability. His work also supported system documentation and design decisions. Sanudha's research helped shape UniChat into an effective and well-informed AI solution for university environments.",
+          email: 'sanudhagamwarige@cmail.carleton.ca',
+          funFact: 'Fun Fact: San can speak three languages: English, French and Sinhalese.'
+        }
+      };
 
-        document.getElementById("modalImg").src = img;
-        document.getElementById("modalName").textContent = name;
-        document.getElementById("modalRole").textContent = role;
-        document.getElementById("modalBio").textContent = bio;
-        document.getElementById("modalEmail").textContent = "Contact: " + email;
-        document.getElementById("teamModal").classList.add("active");
-        document.querySelector(".page").classList.add("blur-background");
-        document.querySelector("header").classList.add("blur-background");
-      }
+      document.querySelectorAll('.team-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const member = teamData[this.dataset.member];
+          if (!member) return;
 
-        document.addEventListener("keydown", function(event){
-          if(event.key === "Escape"){
-            closeModal();
-          }
+          // ✅ use the already-loaded thumbnail image (works with base64 embedding)
+          document.getElementById("modalImg").src = this.querySelector("img").src;
+
+          document.getElementById("modalName").textContent = member.name;
+          document.getElementById("modalRole").textContent = member.role;
+          document.getElementById("modalBio").textContent = member.bio;
+          document.getElementById("modalFunFact").textContent = member.funFact;
+          document.getElementById("modalEmail").textContent = "Contact: " + member.email;
+
+          document.getElementById("teamModal").classList.add("active");
+          document.querySelector(".page").classList.add("blur-background");
+          document.querySelector("header").classList.add("blur-background");
         });
+      })
+
+      document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+          closeModal();
+        }
+      });
 
       function closeModal(event){
         if(!event || event.target.id === "teamModal"){
           document.getElementById("teamModal").classList.remove("active");
           document.querySelector(".page").classList.remove("blur-background");
           document.querySelector("header").classList.remove("blur-background");
+          document.getElementById("modalImg").src = "";   // ✅ reset
         }
       }
 

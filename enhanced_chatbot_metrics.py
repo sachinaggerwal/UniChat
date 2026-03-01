@@ -223,21 +223,32 @@ CSS = """
 
 /* ─── COMPACT LOGO SECTION (10% screen height max) ─── */
 .sidebar-logo-section {
-    max-height: 10vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 8px 8px;
-    margin-bottom: 12px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* slightly bigger badge */
+  padding: 26px 16px;
+  margin: 14px 10px 14px;
+  width: calc(100% - 20px);
+
+  background: #ffffff;
+  border: 2px solid #B3112D;
+  border-radius: 16px;
 }
 .sidebar-logo-section img {
-    max-width: 85%;
-    max-height: 60px;
-    object-fit: contain;
-    margin-bottom: 6px;
+  width: 100%;
+  max-width: 285px;   /* increase for larger logo */
+  max-height: 105px;   /* increase for larger logo */
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;;
+  background: #fff;               /* fixes the “transparent checkerboard” look */
+  padding: 8px 10px;
+  border-radius: 12px;
 }
-
 .sidebar-divider {
     width: 100%;
     height: 2px;
