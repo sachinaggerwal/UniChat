@@ -1,6 +1,5 @@
 """
 enhanced_chatbot_metrics.py - Windows-compatible Streamlit chatbot
-WITH USER AUTHENTICATION & PER-USER CHAT HISTORY
 Enhanced with hybrid Vector DB + Knowledge Graph retrieval + Metrics tracking
 Redesigned UI: Carleton red/black two-pane layout with top-nav page routing
 Run: streamlit run enhanced_chatbot_metrics.py
@@ -8,6 +7,7 @@ Run: streamlit run enhanced_chatbot_metrics.py
 import base64
 from pathlib import Path
 import streamlit as st
+import streamlit.components.v1 as components
 import streamlit.components.v1 as components
 import os
 import warnings
@@ -23,7 +23,10 @@ warnings.filterwarnings('ignore', category=UserWarning)
 import json
 import time
 import sys
+import base64
 import mimetypes
+from pathlib import Path
+import streamlit as st
 from typing import List, Optional
 
 from langchain_community.vectorstores import FAISS
@@ -37,23 +40,8 @@ from knowledge_graph import CourseKnowledgeGraph
 from hybrid_retriever import HybridRetriever
 from metrics_tracker import MetricsTracker
 
-# Import authentication modules
-from auth_db import DatabaseManager
-from auth_ui import render_login_page, render_signup_page, render_user_profile_sidebar
-
 APP_DIR = Path(__file__).parent
 
-# ─────────────────────────────────────────────────────────────
-# Initialize Database Manager (BEFORE page config)
-# ─────────────────────────────────────────────────────────────
-if "db_manager" not in st.session_state:
-    st.session_state.db_manager = DatabaseManager("unichat_users.db")
-
-db_manager = st.session_state.db_manager
-
-# ─────────────────────────────────────────────────────────────
-# HTML Rendering Helpers
-# ─────────────────────────────────────────────────────────────
 def render_html_file(filename: str, height: int = 950):
     html_path = APP_DIR / filename
     if not html_path.exists():
@@ -62,17 +50,18 @@ def render_html_file(filename: str, height: int = 950):
 
     html = html_path.read_text(encoding="utf-8", errors="ignore")
 
-    # Embed Carleton logo
+    # ✅ Embed Carleton logo from /assets so it works inside Streamlit iframe
     logo_path = (APP_DIR / "assets" / "carleton_logo.png")
     if logo_path.exists():
         b64 = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
         data_uri = f"data:image/png;base64,{b64}"
+
         html = html.replace('src="assets/carleton_logo.png"', f'src="{data_uri}"')
         html = html.replace('src="carleton-header-logo.png"', f'src="{data_uri}"')
         html = html.replace("src='assets/carleton_logo.png'", f"src='{data_uri}'")
         html = html.replace("src='carleton-header-logo.png'", f"src='{data_uri}'")
 
-    # Embed Team images
+    # ✅ Embed Team images (so they work inside Streamlit iframe)
     def embed_img(html_text: str, filename: str, placeholder: str) -> str:
         img_path = (APP_DIR / "assets" / filename)
         if not img_path.exists():
@@ -103,14 +92,14 @@ def render_forum_page():
     render_html_file("forum.html", height=1100)
 
 # ─────────────────────────────────────────────────────────────
-# ASSET PATHS
+# ASSET PATHS  –  place logos in an "assets/" folder next to this file
 # ─────────────────────────────────────────────────────────────
 ASSETS_DIR    = Path(__file__).parent / "assets"
 CARLETON_LOGO = ASSETS_DIR / "carleton_logo.png"
 UNICHAT_LOGO  = ASSETS_DIR / "unichat_logo.png"
 
 # ─────────────────────────────────────────────────────────────
-# IMAGE HELPER - Convert images to base64 data URIs
+# IMAGE HELPER - Convert images to base64 data URIs for HTML embedding
 # ─────────────────────────────────────────────────────────────
 def img_to_data_uri(path: Path) -> str:
     """Convert image file to base64 data URI for HTML embedding"""
@@ -125,6 +114,7 @@ def _logo_tag(path: Path, css_class: str, alt: str) -> str:
     if path.exists():
         src = img_to_data_uri(path)
         return f'<img src="{src}" class="{css_class}" alt="{alt}">'
+    # Fallback: red-on-black text placeholder
     return (
         f'<div class="{css_class}" style="'
         f'background:#B3112D;border-radius:8px;padding:10px 18px;'
@@ -133,18 +123,20 @@ def _logo_tag(path: Path, css_class: str, alt: str) -> str:
     )
 
 # ─────────────────────────────────────────────────────────────
-# NAVIGATION REGISTRY
+# NAVIGATION REGISTRY  –  to add a new page just append here
+#   and define a render_<key>() function below.
 # ─────────────────────────────────────────────────────────────
 NAV_PAGES = [
     {"key": "unichat", "label": "UniChat"},
-    {"key": "about",   "label": "About"},
-    {"key": "how",     "label": "How to Use"},
-    {"key": "team",    "label": "Team"},
-    {"key": "forum",   "label": "Forum"},
+    {"key": "about", "label": "About"},
+    {"key": "howto", "label": "How to Use"},
+    {"key": "team", "label": "Meet the Team"},
+    {"key": "faq", "label": "FAQ"},
+    {"key": "forum", "label": "Forum"},
 ]
 
 # ─────────────────────────────────────────────────────────────
-# PAGE CONFIG
+# PAGE CONFIG  (must be the very first Streamlit call)
 # ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="UniChat – Carleton University",
@@ -156,12 +148,6 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────
 # SESSION STATE DEFAULTS
 # ─────────────────────────────────────────────────────────────
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "user" not in st.session_state:
-    st.session_state.user = None
-if "show_signup" not in st.session_state:
-    st.session_state.show_signup = False
 if "active_page" not in st.session_state:
     st.session_state.active_page = "unichat"
 if "messages" not in st.session_state:
@@ -174,40 +160,22 @@ if "selected_course" not in st.session_state:
     st.session_state.selected_course = "All Courses"
 if "retrieval_k" not in st.session_state:
     st.session_state.retrieval_k = Config.RETRIEVAL_TOP_K
-if "chat_loaded" not in st.session_state:
-    st.session_state.chat_loaded = False
+
+
+# ✅ URL ↔ session sync (Streamlit 1.37 safe)
+valid_pages = {p["key"] for p in NAV_PAGES}
+
+try:
+    url_page = st.query_params.get("page")
+except Exception:
+    url_page = st.experimental_get_query_params().get("page", [None])[0]
+
+if url_page in valid_pages:
+    st.session_state.active_page = url_page
+
 
 # ─────────────────────────────────────────────────────────────
-# CHECK AUTHENTICATION - Show login/signup if not authenticated
-# ─────────────────────────────────────────────────────────────
-if not st.session_state.authenticated:
-    if st.session_state.show_signup:
-        render_signup_page(db_manager)
-    else:
-        render_login_page(db_manager)
-    st.stop()  # Stop execution here if not authenticated
-
-# ═══════════════════════════════════════════════════════════════
-# USER IS AUTHENTICATED - LOAD MAIN APP
-# ═══════════════════════════════════════════════════════════════
-
-# Load user's chat history from database (only once per session)
-if not st.session_state.chat_loaded and st.session_state.user:
-    user_id = st.session_state.user['id']
-    messages_data = db_manager.get_user_messages(user_id, limit=100)
-    
-    # Convert to LangChain message objects
-    st.session_state.messages = []
-    for msg in messages_data:
-        if msg['role'] == 'user':
-            st.session_state.messages.append(HumanMessage(msg['content']))
-        elif msg['role'] == 'assistant':
-            st.session_state.messages.append(AIMessage(msg['content']))
-    
-    st.session_state.chat_loaded = True
-
-# ─────────────────────────────────────────────────────────────
-# GLOBAL CSS
+# GLOBAL CSS  –  reskins Streamlit's sidebar + main area
 # ─────────────────────────────────────────────────────────────
 CSS = """
 <style>
@@ -253,7 +221,7 @@ CSS = """
     border-bottom: 1px solid #333;
 }
 
-/* ─── COMPACT LOGO SECTION ─── */
+/* ─── COMPACT LOGO SECTION (10% screen height max) ─── */
 .sidebar-logo-section {
   overflow: visible;
   display: flex;
@@ -313,7 +281,7 @@ CSS = """
 }
 
 /* ═══════════════════════════════════════════════
-   RIGHT PANE
+   RIGHT PANE  –  main content area
    ═══════════════════════════════════════════════ */
 .main .block-container {
     padding-top: 0 !important;
@@ -356,7 +324,7 @@ CSS = """
     margin: 0 -24px;
 }
 
-/* ─── Functional nav buttons row ─── */
+/* ─── Functional nav buttons row – styled to match nav bar ─── */
 .nav-buttons-row {
     display: flex;
     gap: 0;
@@ -441,6 +409,59 @@ CSS = """
     font-size: 12.5px;
 }
 
+/* ─── About / FAQ cards ─── */
+.cu-card {
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.cu-card h3 {
+    color: #B3112D;
+    margin-top: 0;
+    font-size: 16px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+}
+.cu-card p, .cu-card li {
+    color: #444;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.cu-card ul { padding-left: 18px; margin-top: 6px; }
+
+/* ─── FAQ accordion ─── */
+.cu-faq-q {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 11px 16px;
+    border-radius: 7px 7px 0 0;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    user-select: none;
+}
+.cu-faq-q .arrow { transition: transform 0.2s; display: inline-block; }
+.cu-faq-q.open .arrow { transform: rotate(180deg); }
+.cu-faq-a {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 7px 7px;
+    padding: 13px 16px;
+    color: #555;
+    font-size: 13px;
+    line-height: 1.55;
+    display: none;
+}
+.cu-faq-a.open { display: block; }
+
 /* ─── Metrics badges ─── */
 .cu-badges {
     display: flex;
@@ -483,39 +504,48 @@ CSS = """
 
 
 # ═══════════════════════════════════════════════════════════════
-# SYSTEM INITIALISATION (cached – runs once)
+# SYSTEM INITIALISATION  (cached – runs once)
 # ═══════════════════════════════════════════════════════════════
 
 @st.cache_resource(show_spinner=False)
 def initialize_system():
     """Initialize all system components (Windows-compatible)"""
     try:
+        # Print config (suppress in Streamlit)
         if not st.session_state.get("config_printed", False):
             Config.print_summary()
             st.session_state.config_printed = True
 
+        # Check if vector store exists
         persist_dir = Path(Config.PERSIST_DIR)
         if not persist_dir.exists():
             st.error(f"❌ Vector database not found at: {persist_dir.resolve()}")
             st.info("📝 Please run: python enhanced_ingestion.py")
             st.stop()
 
+        # Initialize embeddings
         embeddings = ModelFactory.create_embeddings()
+
+        # Load vector store
         vector_store = FAISS.load_local(
             str(persist_dir), embeddings, allow_dangerous_deserialization=True
         )
 
+        # Check if KG exists
         kg_dir = Path(Config.KG_PERSIST_DIR)
         if not kg_dir.exists():
             st.warning("⚠️ Knowledge graph not found. Running in vector-only mode.")
             kg = None
         else:
+            # Load knowledge graph
             kg = CourseKnowledgeGraph(persist_dir=str(kg_dir))
             kg.load()
 
+        # Initialize hybrid retriever (or vector-only if no KG)
         if kg:
             retriever = HybridRetriever(vector_store, kg)
         else:
+            # Fallback to vector-only retriever
             class VectorOnlyRetriever:
                 def __init__(self, vector_store):
                     self.vector_store = vector_store
@@ -525,12 +555,14 @@ def initialize_system():
                         query, k=k
                     )
 
+                    # Apply course filter
                     if course_filter and course_filter != "All Courses":
                         docs_with_scores = [
                             (doc, score) for doc, score in docs_with_scores
                             if doc.metadata.get("course_code") == course_filter
                         ]
 
+                    # Convert to RetrievalResult format
                     from hybrid_retriever import RetrievalResult
                     results = []
                     for doc, score in docs_with_scores:
@@ -571,8 +603,10 @@ def initialize_system():
 
             retriever = VectorOnlyRetriever(vector_store)
 
+        # Initialize LLM
         llm = ModelFactory.create_llm()
 
+        # Load course codes
         course_codes_file = persist_dir / "course_codes.json"
         if course_codes_file.exists():
             with open(course_codes_file, "r", encoding="utf-8") as f:
@@ -591,9 +625,12 @@ def initialize_system():
     except Exception as e:
         st.error(f"❌ Failed to initialize system: {e}")
         st.info("Please run: python enhanced_ingestion.py")
+
+        # Show detailed error in expander
         with st.expander("Error Details"):
             import traceback
             st.code(traceback.format_exc())
+
         st.stop()
 
 
@@ -638,7 +675,7 @@ Note: The context includes information from vector database and knowledge graph 
 
 
 # ═══════════════════════════════════════════════════════════════
-# Generate Response with Metrics + Save to DB
+# Generate Response with Metrics
 # ═══════════════════════════════════════════════════════════════
 def generate_enhanced_response(
     question: str, k: int = None, course_filter: Optional[str] = None
@@ -647,13 +684,16 @@ def generate_enhanced_response(
     start_time = time.time()
     k = k or Config.RETRIEVAL_TOP_K
 
+    # Start metrics tracking
     tracker = st.session_state.metrics_tracker
     tracking_data = tracker.start_query()
 
+    # Enhance question with course context
     enhanced_question = question
     if course_filter and course_filter != "All Courses":
         enhanced_question = f"For course {course_filter}: {question}"
 
+    # Hybrid retrieval
     retrieval_start = time.time()
     results, metadata = retriever.retrieve(
         enhanced_question, k=k, course_filter=course_filter
@@ -669,19 +709,25 @@ def generate_enhanced_response(
             None,
         )
 
+    # Format context for LLM
     context = retriever.format_results_for_llm(results, max_length=3500)
+
+    # Generate response
     messages = rag_prompt.format_messages(context=context, question=question)
 
     generation_start = time.time()
     response = llm.invoke(messages)
     generation_time = time.time() - generation_start
 
+    # Extract answer
     answer = response.content if hasattr(response, "content") else str(response)
 
+    # Get course references
     courses_referenced = list(
         dict.fromkeys([r.course_code for r in results if r.course_code])
     )
 
+    # Track metrics
     metrics = tracker.end_query(
         tracking_data=tracking_data,
         query=question,
@@ -695,6 +741,7 @@ def generate_enhanced_response(
         courses_referenced=courses_referenced,
     )
 
+    # Add source information
     source_breakdown = metadata["sources_breakdown"]
     sources_text = f"\n\n📊 **Information Sources:**\n"
     sources_text += f"- Vector DB: {source_breakdown['vector']} chunks\n"
@@ -721,7 +768,7 @@ def generate_enhanced_response(
 def render_unichat():
     """UniChat chatbot page – full chat interface"""
 
-    # UniChat logo header
+    # ── UniChat logo header ──
     if UNICHAT_LOGO.exists():
         unichat_src = img_to_data_uri(UNICHAT_LOGO)
         st.markdown(
@@ -736,7 +783,7 @@ def render_unichat():
     else:
         st.markdown("### 🤖 UniChat\n*AI Chatbot for Carleton Students*")
 
-    # Controls row
+    # ── Controls row ──
     ctrl1, ctrl2, ctrl3 = st.columns([3, 2, 1.2])
     with ctrl1:
         course_options = ["All Courses"] + sorted(available_courses)
@@ -744,25 +791,23 @@ def render_unichat():
         idx = course_options.index(cur) if cur in course_options else 0
         st.session_state.selected_course = st.selectbox(
             "Course Filter", course_options, index=idx,
+            key="course_filter_selectbox",
             help="Filter responses to a specific course",
         )
     with ctrl2:
         st.session_state.retrieval_k = st.slider(
             "Results to Retrieve",
+            key="retrieval_k_slider",
             min_value=3, max_value=15,
             value=st.session_state.retrieval_k,
             help="Number of chunks retrieved per query",
         )
     with ctrl3:
         if st.button("🗑️ Clear Chat", use_container_width=True):
-            # Clear from database
-            user_id = st.session_state.user['id']
-            db_manager.clear_user_messages(user_id)
-            # Clear from session
             st.session_state.messages = []
             st.rerun()
 
-    # Chat history
+    # ── Chat history ──
     for message in st.session_state.messages[-10:]:
         if isinstance(message, HumanMessage):
             with st.chat_message("user"):
@@ -771,7 +816,7 @@ def render_unichat():
             with st.chat_message("assistant"):
                 st.markdown(message.content)
 
-    # Example question pills
+    # ── Example question pills (visual) + buttons (functional) ──
     examples = [
         "What are the prerequisites for this course?",
         "Who teaches this course?",
@@ -793,13 +838,15 @@ def render_unichat():
                 st.session_state.pending_example = q
                 st.rerun()
 
-    # Chat input
+    # ── Chat input ──
+    # Consume any pending example click as pre-filled question
     prefill = st.session_state.pending_example or ""
     if st.session_state.pending_example:
         st.session_state.pending_example = None
 
     user_question = st.chat_input("Ask about course outlines...")
 
+    # If no typed input but an example was clicked, use that
     if not user_question and prefill:
         user_question = prefill
 
@@ -808,15 +855,6 @@ def render_unichat():
         with st.chat_message("user"):
             st.markdown(user_question)
         st.session_state.messages.append(HumanMessage(user_question))
-        
-        # Save to database
-        user_id = st.session_state.user['id']
-        db_manager.save_message(
-            user_id, 
-            "user", 
-            user_question, 
-            st.session_state.selected_course if st.session_state.selected_course != "All Courses" else None
-        )
 
         # Generate and display response
         with st.chat_message("assistant"):
@@ -836,9 +874,6 @@ def render_unichat():
 
                     message_placeholder.markdown(response)
                     st.session_state.messages.append(AIMessage(response))
-                    
-                    # Save assistant response to database
-                    db_manager.save_message(user_id, "assistant", response, cf)
 
                     # Metrics badges
                     if metrics:
@@ -866,26 +901,120 @@ def render_unichat():
                         st.code(traceback.format_exc())
 
 
-# PAGE RENDERER REGISTRY
+def render_about():
+    """About Us page"""
+    st.markdown(
+        '<h2 class="cu-page-title">About Us</h2>'
+        '<p class="cu-page-subtitle">Learn more about the UniChat project</p>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("""
+    <div class="cu-card">
+        <h3>🎓 What is UniChat?</h3>
+        <p>UniChat is an AI-powered chatbot built specifically for <strong>Carleton University</strong> students.
+        It uses advanced Retrieval-Augmented Generation (RAG) technology to help you quickly find answers
+        about course outlines, prerequisites, grading schemes, learning outcomes, and more.</p>
+    </div>
+    <div class="cu-card">
+        <h3>🔧 Technology Stack</h3>
+        <ul>
+            <li><strong>Vector Database (FAISS)</strong> – Stores and searches course content using semantic embeddings.</li>
+            <li><strong>Knowledge Graph</strong> – Captures relationships between courses, prerequisites, and topics.</li>
+            <li><strong>Hybrid Retrieval</strong> – Combines vector similarity search with knowledge-graph traversal for richer context.</li>
+            <li><strong>Large Language Models</strong> – Supports OpenAI, Ollama, Anthropic, and Cohere backends.</li>
+            <li><strong>Streamlit</strong> – Provides the interactive web interface.</li>
+        </ul>
+    </div>
+    <div class="cu-card">
+        <h3>📌 How to Use</h3>
+        <p>Type a question in the UniChat input box — for example, <em>"What are the prerequisites for COMP 3001?"</em>
+        — and UniChat will retrieve relevant information from Carleton's course outlines and generate a clear, accurate answer.
+        Use the <strong>Course Filter</strong> to narrow results to a specific course.</p>
+    </div>
+    <div class="cu-card">
+        <h3>📞 Contact</h3>
+        <p>For questions or feedback about UniChat, please reach out to the project team through the
+        Carleton University Computer Science department.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_faq():
+    """FAQ page with JS-powered accordion"""
+    st.markdown(
+        '<h2 class="cu-page-title">Frequently Asked Questions</h2>'
+        '<p class="cu-page-subtitle">Answers to common questions about UniChat</p>',
+        unsafe_allow_html=True,
+    )
+
+    faqs = [
+        ("What types of questions can I ask UniChat?",
+         "You can ask about prerequisites, grading breakdowns, course descriptions, learning outcomes, "
+         "instructors, textbooks, schedules, and any other information contained in Carleton course outlines."),
+        ("How accurate are the answers?",
+         "UniChat retrieves information directly from indexed course outlines and uses an LLM to synthesise the answer. "
+         "Each response includes source attribution. For critical decisions, always cross-reference with official Carleton sources."),
+        ("Can I filter by a specific course?",
+         "Yes! Use the Course Filter dropdown on the UniChat page to restrict answers to a particular course code. "
+         "This is especially useful when asking about prerequisites or grading for a specific class."),
+        ("What happens if UniChat doesn't know the answer?",
+         "If no relevant information is found in the indexed course outlines, UniChat will clearly state that it could not find a match "
+         "rather than guessing. You can then try rephrasing your question or removing the course filter."),
+        ("How do I add new course outlines?",
+         "Course outlines are ingested using the enhanced_ingestion.py script. An administrator needs to place the new PDF or JSONL files "
+         "in the configured directory and re-run the ingestion pipeline to rebuild the vector store and knowledge graph."),
+        ("Is my data private?",
+         "UniChat runs locally on your institution's servers. Queries are not sent to external services beyond the configured LLM provider. "
+         "Check with your IT department for the full data-handling policy."),
+        ("Which LLM providers are supported?",
+         "UniChat currently supports OpenAI (GPT-4o, GPT-4o-mini), Ollama (Llama, Mistral, Phi), Anthropic (Claude), and Cohere. "
+         "The active provider is configured in the .env file."),
+    ]
+
+    # Accordion HTML with inline JS toggle
+    acc_html = ""
+    for i, (q, a) in enumerate(faqs):
+        acc_html += (
+            f'<div class="cu-faq-q" id="faq-q-{i}" '
+            f'onclick="'
+            f'this.classList.toggle(\'open\');"'
+            f'>'
+            f'{q} <span class="arrow">▼</span></div>'
+            f'<div class="cu-faq-a" id="faq-a-{i}">{a}</div>'
+        )
+    # JS to toggle the answer panel when the question is clicked
+    acc_html += """
+    <script>
+    document.querySelectorAll('.cu-faq-q').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var ansId = 'faq-a-' + this.id.replace('faq-q-', '');
+            var ans = document.getElementById(ansId);
+            if (ans) ans.classList.toggle('open');
+        });
+    });
+    </script>
+    """
+    st.markdown(acc_html, unsafe_allow_html=True)
+
 PAGE_RENDERERS = {
     "unichat": render_unichat,
-    "about":   render_about_page,
-    "how":     render_howto_page,
-    "team":    render_team_page,
-    "forum":   render_forum_page,
+    "about": render_about_page,
+    "howto": render_howto_page,
+    "team": render_team_page,
+    "faq": render_faq,
+    "forum": render_forum_page,
 }
-
 
 # ═══════════════════════════════════════════════════════════════
 # MAIN LAYOUT ASSEMBLY
 # ═══════════════════════════════════════════════════════════════
 
-# 1. Inject global CSS
+# ── 1. Inject global CSS ──
 st.markdown(CSS, unsafe_allow_html=True)
 
-# 2. LEFT PANE – Streamlit sidebar
+# ── 2. LEFT PANE – Streamlit sidebar (restyled via CSS above) ──
 with st.sidebar:
-    # COMPACT LOGO SECTION
+    # COMPACT LOGO SECTION (10% screen height)
     logo_html = _logo_tag(CARLETON_LOGO, "sidebar-logo-img", "Carleton University")
     st.markdown(
         f'<div class="sidebar-logo-section">{logo_html}</div>',
@@ -903,10 +1032,7 @@ with st.sidebar:
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
-    # User Profile Section
-    render_user_profile_sidebar(db_manager)
-
-    # Sidebar settings
+    # ── Sidebar settings ──
     st.markdown("### ⚙️ Configuration")
     with st.expander("🤖 Model Settings", expanded=False):
         st.text(f"Embeddings: {Config.EMBEDDING_PROVIDER}")
@@ -914,12 +1040,13 @@ with st.sidebar:
         st.text(f"LLM: {Config.LLM_PROVIDER}")
         st.text(f"Model: {Config.LLM_MODEL}")
 
-    # Fusion strategy
+    # Fusion strategy (only if KG available)
     if kg:
         st.markdown("### 🔀 Fusion Strategy")
         fusion_strategy = st.selectbox(
             "Strategy:",
             ["adaptive", "weighted", "rrf"],
+            key="fusion_strategy_selectbox",
             index=["adaptive", "weighted", "rrf"].index(Config.FUSION_STRATEGY),
             help="How to combine vector and KG results",
         )
@@ -928,7 +1055,8 @@ with st.sidebar:
         if fusion_strategy == "weighted":
             st.markdown("**Retrieval Weights**")
             vector_weight = st.slider(
-                "Vector DB Weight:", 0.0, 1.0, Config.VECTOR_WEIGHT, 0.1
+                "Vector DB Weight:", 0.0, 1.0, Config.VECTOR_WEIGHT, 0.1,
+                key="vector_db_weight_slider"
             )
             kg_weight = 1.0 - vector_weight
             st.text(f"KG Weight: {kg_weight:.1f}")
@@ -942,6 +1070,8 @@ with st.sidebar:
         summary = tracker.get_summary()
         st.metric("Total Queries", summary["total_queries"])
         st.metric("Avg Response Time", f"{summary['timing']['avg_total_time']:.2f}s")
+        if "avg_accuracy_score" in summary.get("quality", {}):
+            st.metric("Avg Accuracy", f"{summary['quality']['avg_accuracy_score']:.2f}")
 
     st.markdown("---")
     if st.button("📊 Save Metrics"):
@@ -949,9 +1079,9 @@ with st.sidebar:
         st.success("Metrics saved!")
 
 
-# 3. RIGHT PANE – Nav bar + page content
+# ── 3. RIGHT PANE – Nav bar + page content ──
 
-# Visual nav bar
+# Visual nav bar (pure HTML – just for appearance)
 nav_html = '<div class="cu-topnav">'
 for page in NAV_PAGES:
     active = "active" if st.session_state.active_page == page["key"] else ""
@@ -959,7 +1089,7 @@ for page in NAV_PAGES:
 nav_html += '</div>'
 st.markdown(nav_html, unsafe_allow_html=True)
 
-# Functional nav buttons
+# Functional nav buttons – styled via .nav-buttons-row CSS to look like the nav bar
 st.markdown('<div class="nav-buttons-row">', unsafe_allow_html=True)
 nav_cols = st.columns(len(NAV_PAGES))
 for i, page in enumerate(NAV_PAGES):
@@ -972,15 +1102,22 @@ for i, page in enumerate(NAV_PAGES):
             use_container_width=True,
         ):
             st.session_state.active_page = page["key"]
+
+            # ✅ Update URL so HTML links (?page=...) work
+            try:
+                st.query_params["page"] = page["key"]
+            except Exception:
+                st.experimental_set_query_params(page=page["key"])
+
             st.rerun()
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 4. Render current page
+# ── 4. Render current page ──
 current_page = st.session_state.active_page
 if current_page in PAGE_RENDERERS:
     PAGE_RENDERERS[current_page]()
 
-# 5. Footer
+# ── 5. Footer ──
 st.markdown("---")
 col_f1, col_f2, col_f3 = st.columns(3)
 with col_f1:

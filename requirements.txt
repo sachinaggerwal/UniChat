@@ -51,3 +51,5 @@ pytest>=8.2.0
 pytest-cov>=5.0.0
 
 psutil
+
+sqlalchemy==2.0.23
