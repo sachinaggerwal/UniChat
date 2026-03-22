@@ -108,16 +108,7 @@ def render_team_page():
     render_html_file("test.html", height=1100)
 
 def render_forum_page():
-    """Community forum page - interactive threads and comments"""
-    # Import forum UI (imported only when needed)
-    from forum_ui import render_forum_page as render_forum
-    
-    # Render the forum with current user
-    if st.session_state.get('user'):
-        render_forum(db_manager, st.session_state.user)
-    else:
-        st.error("Please log in to access the forum")
-
+    render_html_file("forum.html", height=1100)
 
 # ─────────────────────────────────────────────────────────────
 # ASSET PATHS
