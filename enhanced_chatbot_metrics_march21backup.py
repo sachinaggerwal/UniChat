@@ -1,14 +1,9 @@
 """
 enhanced_chatbot_metrics.py - Windows-compatible Streamlit chatbot
-WITH USER AUTHENTICATION & PER-USER CHAT HISTORY - FIXED VERSION
+WITH USER AUTHENTICATION & PER-USER CHAT HISTORY
 Enhanced with hybrid Vector DB + Knowledge Graph retrieval + Metrics tracking
 Redesigned UI: Carleton red/black two-pane layout with top-nav page routing
 Run: streamlit run enhanced_chatbot_metrics.py
-
-FIXES:
-- Chat history properly isolated per user
-- Message counts accurate per user
-- Session state properly managed across logins/logouts
 """
 import base64
 from pathlib import Path
@@ -45,9 +40,6 @@ from metrics_tracker import MetricsTracker
 # Import authentication modules
 from auth_db import DatabaseManager
 from auth_ui import render_login_page, render_signup_page, render_user_profile_sidebar
-
-# Import theme manager
-from theme_manager import get_theme_css, render_theme_toggle
 
 APP_DIR = Path(__file__).parent
 
@@ -162,47 +154,28 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────
-# SESSION STATE INITIALIZATION
-# CRITICAL: Initialize ALL session state vars BEFORE checking auth
+# SESSION STATE DEFAULTS
 # ─────────────────────────────────────────────────────────────
-def init_session_state():
-    """Initialize all session state variables with proper defaults"""
-    # Auth state
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-    if "user" not in st.session_state:
-        st.session_state.user = None
-    if "show_signup" not in st.session_state:
-        st.session_state.show_signup = False
-    
-    # Chat state - IMPORTANT: Use user_id as key for isolation
-    if "current_user_id" not in st.session_state:
-        st.session_state.current_user_id = None
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-    if "chat_loaded" not in st.session_state:
-        st.session_state.chat_loaded = False
-    
-    # Navigation state
-    if "active_page" not in st.session_state:
-        st.session_state.active_page = "unichat"
-    if "pending_example" not in st.session_state:
-        st.session_state.pending_example = None
-    
-    # Settings state
-    if "selected_course" not in st.session_state:
-        st.session_state.selected_course = "All Courses"
-    if "retrieval_k" not in st.session_state:
-        st.session_state.retrieval_k = Config.RETRIEVAL_TOP_K
-    if "dark_mode" not in st.session_state:
-        st.session_state.dark_mode = True  # Default to dark mode (Carleton theme)
-    
-    # Metrics state
-    if "metrics_tracker" not in st.session_state:
-        st.session_state.metrics_tracker = MetricsTracker(log_dir="chatbot_metrics")
-
-# Initialize session state
-init_session_state()
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "user" not in st.session_state:
+    st.session_state.user = None
+if "show_signup" not in st.session_state:
+    st.session_state.show_signup = False
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "unichat"
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "metrics_tracker" not in st.session_state:
+    st.session_state.metrics_tracker = MetricsTracker(log_dir="chatbot_metrics")
+if "pending_example" not in st.session_state:
+    st.session_state.pending_example = None
+if "selected_course" not in st.session_state:
+    st.session_state.selected_course = "All Courses"
+if "retrieval_k" not in st.session_state:
+    st.session_state.retrieval_k = Config.RETRIEVAL_TOP_K
+if "chat_loaded" not in st.session_state:
+    st.session_state.chat_loaded = False
 
 # ─────────────────────────────────────────────────────────────
 # CHECK AUTHENTICATION - Show login/signup if not authenticated
@@ -218,14 +191,10 @@ if not st.session_state.authenticated:
 # USER IS AUTHENTICATED - LOAD MAIN APP
 # ═══════════════════════════════════════════════════════════════
 
-# Load user's chat history from database (only once per user session)
-# CRITICAL FIX: Check if user changed and reload accordingly
-current_user_id = st.session_state.user['id']
-
-if st.session_state.current_user_id != current_user_id or not st.session_state.chat_loaded:
-    # New user logged in or first load - reload chat history
-    st.session_state.current_user_id = current_user_id
-    messages_data = db_manager.get_user_messages(current_user_id, limit=100)
+# Load user's chat history from database (only once per session)
+if not st.session_state.chat_loaded and st.session_state.user:
+    user_id = st.session_state.user['id']
+    messages_data = db_manager.get_user_messages(user_id, limit=100)
     
     # Convert to LangChain message objects
     st.session_state.messages = []
@@ -238,10 +207,279 @@ if st.session_state.current_user_id != current_user_id or not st.session_state.c
     st.session_state.chat_loaded = True
 
 # ─────────────────────────────────────────────────────────────
-# GLOBAL CSS - NOW HANDLED BY theme_manager.py
-# This static CSS has been replaced with dynamic theme-aware CSS
+# GLOBAL CSS
 # ─────────────────────────────────────────────────────────────
-# CSS definition removed - using get_theme_css() from theme_manager instead
+CSS = """
+<style>
+/* ═══════════════════════════════════════════════
+   BASE / RESET
+   ═══════════════════════════════════════════════ */
+.stApp {
+    background-color: #f4f5f7;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   LEFT PANE  –  Streamlit sidebar restyled
+   ═══════════════════════════════════════════════ */
+[data-testid="stSidebar"] {
+    background-color: #1a1a1a !important;
+    border-right: 3px solid #B3112D;
+    min-width: 240px;
+    max-width: 300px;
+}
+[data-testid="stSidebarCollapseButton"] {
+    background: transparent !important;
+    border: none !important;
+}
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] .stText,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stSelectbox label,
+[data-testid="stSidebar"] .stSlider label {
+    color: #d0d0d0 !important;
+    font-size: 13px !important;
+}
+[data-testid="stSidebar"] h3 {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 20px !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #333;
+}
+
+/* ─── COMPACT LOGO SECTION ─── */
+.sidebar-logo-section {
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* slightly bigger badge */
+  padding: 26px 16px;
+  margin: 14px 10px 14px;
+  width: calc(100% - 20px);
+
+  background: #ffffff;
+  border: 2px solid #B3112D;
+  border-radius: 16px;
+}
+.sidebar-logo-section img {
+  width: 100%;
+  max-width: 285px;   /* increase for larger logo */
+  max-height: 105px;   /* increase for larger logo */
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;;
+  background: #fff;               /* fixes the “transparent checkerboard” look */
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+.sidebar-divider {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #B3112D, transparent);
+    margin: 10px 0;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] div {
+    background-color: #2a2a2a !important;
+    border-color: #444 !important;
+    color: #eee !important;
+}
+[data-testid="stSidebar"] [data-testid="stSlider"] {
+    color: #B3112D !important;
+}
+[data-testid="stSidebar"] .stButton button {
+    background-color: #B3112D !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+}
+[data-testid="stSidebar"] .stButton button:hover {
+    background-color: #950f27 !important;
+}
+[data-testid="stSidebar"] details summary {
+    color: #aaa !important;
+    font-size: 12px !important;
+}
+
+/* ═══════════════════════════════════════════════
+   RIGHT PANE
+   ═══════════════════════════════════════════════ */
+.main .block-container {
+    padding-top: 0 !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    max-width: 100% !important;
+}
+
+/* ─── Top Navigation Bar ─── */
+.cu-topnav {
+    display: flex;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 0 20px;
+    height: 52px;
+    gap: 6px;
+    margin: -8px -24px 0 -24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.cu-nav-btn {
+    display: inline-block;
+    color: #c8c8c8;
+    background: transparent;
+    border: none;
+    padding: 7px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+    text-decoration: none;
+}
+.cu-nav-btn.active {
+    background: #B3112D;
+    color: #fff !important;
+    font-weight: 600;
+}
+.cu-red-rule {
+    height: 3px;
+    background: #B3112D;
+    margin: 0 -24px;
+}
+
+/* ─── Functional nav buttons row ─── */
+.nav-buttons-row {
+    display: flex;
+    gap: 0;
+    background: #1a1a1a;
+    padding: 6px 12px;
+    margin: 0 -24px;
+    border-bottom: 3px solid #B3112D;
+}
+.nav-buttons-row .stButton {
+    flex: 1;
+}
+.nav-buttons-row .stButton button {
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    height: 38px !important;
+    background: transparent !important;
+    color: #c8c8c8 !important;
+    border: none !important;
+    transition: background 0.18s, color 0.18s !important;
+}
+.nav-buttons-row .stButton button:hover {
+    background: rgba(179,17,45,0.25) !important;
+    color: #fff !important;
+}
+.nav-buttons-row .stButton button[data-testid="baseButton-primary"] {
+    background: #B3112D !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* ─── Page Title ─── */
+.cu-page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 20px 0 4px;
+    letter-spacing: -0.3px;
+}
+.cu-page-subtitle {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 18px;
+}
+
+/* ─── UniChat logo row ─── */
+.cu-unichat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0 16px;
+}
+.cu-unichat-header img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+.cu-unichat-header .cu-uh-text h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #1a1a1a;
+}
+.cu-unichat-header .cu-uh-text p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #777;
+}
+
+/* ─── Example question pills ─── */
+.cu-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 4px;
+}
+.cu-pill {
+    background: #fff0f2;
+    border: 1px solid #f0c0c8;
+    color: #B3112D;
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 12.5px;
+}
+
+/* ─── Metrics badges ─── */
+.cu-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+.cu-badge {
+    background: #f0f4ff;
+    border: 1px solid #d4dff5;
+    border-radius: 8px;
+    padding: 8px 14px;
+    min-width: 110px;
+    text-align: center;
+}
+.cu-badge-label {
+    font-size: 10.5px;
+    color: #6b7a99;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cu-badge-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .nav-buttons-row { padding: 4px 8px; }
+    .nav-buttons-row .stButton button { font-size: 12px !important; height: 34px !important; }
+    .main .block-container { padding-left: 12px !important; padding-right: 12px !important; }
+    .cu-red-rule { margin: 0 -12px; }
+}
+</style>
+"""
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -517,14 +755,14 @@ def render_unichat():
         )
     with ctrl3:
         if st.button("🗑️ Clear Chat", use_container_width=True):
-            # Clear from database for CURRENT USER ONLY
+            # Clear from database
             user_id = st.session_state.user['id']
             db_manager.clear_user_messages(user_id)
             # Clear from session
             st.session_state.messages = []
             st.rerun()
 
-    # Chat history - ONLY show current user's messages
+    # Chat history
     for message in st.session_state.messages[-10:]:
         if isinstance(message, HumanMessage):
             with st.chat_message("user"):
@@ -571,7 +809,7 @@ def render_unichat():
             st.markdown(user_question)
         st.session_state.messages.append(HumanMessage(user_question))
         
-        # Save to database - CURRENT USER ONLY
+        # Save to database
         user_id = st.session_state.user['id']
         db_manager.save_message(
             user_id, 
@@ -599,7 +837,7 @@ def render_unichat():
                     message_placeholder.markdown(response)
                     st.session_state.messages.append(AIMessage(response))
                     
-                    # Save assistant response to database - CURRENT USER ONLY
+                    # Save assistant response to database
                     db_manager.save_message(user_id, "assistant", response, cf)
 
                     # Metrics badges
@@ -642,9 +880,8 @@ PAGE_RENDERERS = {
 # MAIN LAYOUT ASSEMBLY
 # ═══════════════════════════════════════════════════════════════
 
-# 1. Inject theme-aware CSS based on dark_mode state
-theme_css = get_theme_css(dark_mode=st.session_state.dark_mode)
-st.markdown(theme_css, unsafe_allow_html=True)
+# 1. Inject global CSS
+st.markdown(CSS, unsafe_allow_html=True)
 
 # 2. LEFT PANE – Streamlit sidebar
 with st.sidebar:
@@ -663,14 +900,6 @@ with st.sidebar:
         "prerequisites, and more.",
         unsafe_allow_html=False,
     )
-
-    st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-
-    # Theme Toggle Button
-    st.markdown("### 🎨 Appearance")
-    theme_changed = render_theme_toggle()
-    if theme_changed:
-        st.rerun()  # Reload to apply new theme
 
     st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
