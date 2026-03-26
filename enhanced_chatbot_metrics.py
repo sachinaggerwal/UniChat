@@ -105,7 +105,7 @@ def render_howto_page():
     render_html_file("how-to-use.html", height=1100)
 
 def render_team_page():
-    render_html_file("test.html", height=1100)
+    render_html_file("team.html", height=1100)
 
 def render_forum_page():
     """Community forum page - interactive threads and comments"""
